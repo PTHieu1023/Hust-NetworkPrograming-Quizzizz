@@ -13,7 +13,11 @@ find_package(Qt6 COMPONENTS
         Widgets
         REQUIRED)
 
-add_executable(Client main.cpp)
+include_directories(src)
+add_executable(Client 
+    src/resources/ui/mainwindow.ui
+    src/MainWindow.cpp 
+    src/main.cpp)
 target_link_libraries(Client
         Qt::Core
         Qt::Gui
