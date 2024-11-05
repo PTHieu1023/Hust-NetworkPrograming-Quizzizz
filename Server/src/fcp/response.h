@@ -1,8 +1,7 @@
 #ifndef RESPONSE_H
 #define RESPONSE_H
 
-#include <map>
-#include <string>
+#include "header.h"
 
 namespace fcp
 {

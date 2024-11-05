@@ -2,51 +2,68 @@
 #define REQUEST_H
 
 #include <string>
-#include <map>
 #include <memory>
 #include <sstream>
+#include <algorithm>
+#include "header.h"
 
-namespace fcp
+namespace fcp::request
 {
     class Request
     {
     private:
-        std::string func_path;
-        std::map<std::string, std::string> headers;
+        std::string func_call;
+        std::unique_ptr<header::Header> header;
         std::string body;
-
-        friend Request *parse(const std::string &request_str);
 
     public:
         Request() = default;
-        ~Request() = delete;
+        ~Request() = default;
 
-        // Getter for func_path
-        inline std::string get_func_path() const { return func_path; }
+        std::string get_func_call() const;
+        std::string get_header(const std::string &key) const;
+        std::string get_body() const;
 
-        // Setter for headers
-        inline void set_header(const std::string &key, const std::string &value) { headers[key] = value; }
+        void set_header(const std::string &key, const std::string &value);
 
-        // Getter for a header value
-        inline std::string get_header(const std::string &key) const
-        {
-            auto it = headers.find(key);
-            return (it != headers.end()) ? it->second : "";
-        }
-
-        // Getter for body
-        inline std::string get_body() const { return body; }
+        static std::unique_ptr<Request> parse(const std::string &request_str);
+        std::string deparse() const;
     };
 
-    inline Request *parse(const std::string &request_str)
+    inline std::string Request::get_func_call() const
     {
-        auto request = new Request();
+        return this->func_call;
+    }
+
+    inline void Request::set_header(const std::string &key, const std::string &value)
+    {
+        if (!header)
+            this->header = std::make_unique<header::Header>();
+        header.get()
+            ->set_header(key, value);
+    }
+
+    inline std::string Request::get_header(const std::string &key) const
+    {
+        return header.get()->get_header(key);
+    }
+
+    inline std::string Request::get_body() const
+    {
+        return this->body;
+    }
+
+    inline std::unique_ptr<Request> Request::parse(const std::string &request_str)
+    {
+        auto request = std::make_unique<Request>();
         std::istringstream stream(request_str);
         std::string line;
 
-        // Parse the function name (first line)
-        std::getline(stream, line);
-        request->func_path = std::move(line);
+        // Parse the function path or method line
+        if (std::getline(stream, line))
+        {
+            request->func_call = std::move(line);
+        }
 
         // Parse headers until an empty line is found
         while (std::getline(stream, line) && !line.empty())
@@ -56,8 +73,15 @@ namespace fcp
             {
                 std::string key = line.substr(0, colon_pos);
                 std::string value = line.substr(colon_pos + 1);
-                value.erase(0, value.find_first_not_of(" \t")); // Trim leading whitespace
-                request->set_header(std::move(key), std::move(value));
+
+                // Trim leading and trailing whitespace from value
+                value.erase(0, value.find_first_not_of(" \t"));
+                value.erase(value.find_last_not_of(" \t") + 1);
+
+                if (!key.empty())
+                {
+                    request->set_header(key, value);
+                }
             }
         }
 
@@ -67,6 +91,18 @@ namespace fcp
         return request;
     }
 
+    inline std::string Request::deparse() const
+    {
+        std::string request_str(this->func_call.c_str());
+        if (header)
+        {
+            request_str
+                .append("\n")
+                .append(header->to_string());
+        }
+        return request_str.append("\n").append(this->body);
+    }
+
 } // namespace fcp
 
-#endif // REQUEST_H
+#endif
