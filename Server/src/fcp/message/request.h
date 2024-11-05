@@ -4,27 +4,21 @@
 #include <string>
 #include <memory>
 #include <sstream>
-#include <algorithm>
-#include "header.h"
 
-namespace fcp::request
+#include "fcp/message/message.h"
+
+namespace fcp::message
 {
-    class Request
+    class Request : public message::Message
     {
     private:
         std::string func_call;
-        std::unique_ptr<header::Header> header;
-        std::string body;
 
     public:
         Request() = default;
         ~Request() = default;
 
         std::string get_func_call() const;
-        std::string get_header(const std::string &key) const;
-        std::string get_body() const;
-
-        void set_header(const std::string &key, const std::string &value);
 
         static std::unique_ptr<Request> parse(const std::string &request_str);
         std::string deparse() const;
@@ -33,24 +27,6 @@ namespace fcp::request
     inline std::string Request::get_func_call() const
     {
         return this->func_call;
-    }
-
-    inline void Request::set_header(const std::string &key, const std::string &value)
-    {
-        if (!header)
-            this->header = std::make_unique<header::Header>();
-        header.get()
-            ->set_header(key, value);
-    }
-
-    inline std::string Request::get_header(const std::string &key) const
-    {
-        return header.get()->get_header(key);
-    }
-
-    inline std::string Request::get_body() const
-    {
-        return this->body;
     }
 
     inline std::unique_ptr<Request> Request::parse(const std::string &request_str)

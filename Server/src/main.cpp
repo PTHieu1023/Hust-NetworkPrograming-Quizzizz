@@ -1,10 +1,12 @@
-#include "fcp/request.h"
+#include <iostream>
+
+#include "fcp/core/server.h"
 
 int main()
 {
-    const char *buffer = "/user/getAll\nContent-Length: 123\nContent-Type: JSON\nAuthorization: fasgasdfsad\n\n{id: dasfsad, namwe: dasdsa}";
-    auto req = fcp::request::Request::parse(buffer);
-    auto str = req.get()->deparse();
-    auto req2 = fcp::request::Request::parse(str);
+    std::unique_ptr<fcp::core::Server> server = std::make_unique<fcp::core::Server>();
+    server->start([&](fcp::core::Server *server) {
+        std::cout << "Server started" << std::endl;
+    });
     return 0;
 }

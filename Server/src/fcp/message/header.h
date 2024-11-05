@@ -6,9 +6,9 @@
 #include <iostream>
 #include <cstring>
 
-#include "utils/cstr_collector.h"
+#include "fcp/message/utils.h"
 
-namespace fcp::header
+namespace fcp::message
 {
     // Constant header names as `const char*`
     constexpr const char *CONTENT_LENGTH = "Content-Length";
