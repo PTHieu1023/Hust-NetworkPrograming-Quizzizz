@@ -1,17 +1,21 @@
-import React from 'react'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
-import HomePage from './pages/HomePage'
-import NotFoundPage from './pages/NotFoundPage'
-import { ROUTES } from './resources/routes-constants'
-import './styles/main.sass'
+import React, { useEffect } from 'react'
+import { BrowserRouter as Router } from 'react-router-dom'
+import './index.css'
+import Routes from './routes/Router'
+import { useAppSelector } from './store/reducers/store'
 
 const RootComponent: React.FC = () => {
+    const theme = useAppSelector((state) => state.themes.mode)
+
+    useEffect(() => {
+        document.documentElement.setAttribute('data-theme', theme)
+    }, [theme])
+
     return (
         <Router>
-            <Routes>
-                <Route path="*" element={<NotFoundPage />} />
-                <Route path={ROUTES.HOMEPAGE_ROUTE} element={<HomePage />} />
-            </Routes>
+            <div className="h-screen overflow-y-scroll no-scrollbar">
+                <Routes />
+            </div>
         </Router>
     )
 }
