@@ -28,7 +28,7 @@ const Register = () => {
                                 clipRule="evenodd"
                             />
                         </svg>
-                        <input type="password" className="grow" placeholder="password" />
+                        <input type="password" className="grow" placeholder="Password" />
                     </label>
                     <label className="input input-bordered w-full flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4 opacity-70">
@@ -38,7 +38,7 @@ const Register = () => {
                                 clipRule="evenodd"
                             />
                         </svg>
-                        <input type="password" className="grow" placeholder="confirm password" />
+                        <input type="password" className="grow" placeholder="Confirm password" />
                     </label>
                     <div className="flex justify-between items-center w-full px-2">
                         <span className="text-info">Already registered?</span>

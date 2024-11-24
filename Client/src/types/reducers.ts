@@ -1,3 +1,6 @@
+import { Theme, themes } from '~/resources/common-constants'
+import { User } from './services'
+
 export interface ReducerData {
     contents: string[]
 }
@@ -9,15 +12,12 @@ export type ReduxActionData<T> = {
 
 export type ReduxAction<T> = (data: T) => ReduxActionData<T>
 
-export interface AuthState {
-    isInitialized?: boolean
-    isAuthenticated?: boolean
-    user?: User | null
+// Theme
+export interface ThemeState {
+    mode: Theme
 }
-
-export type User = {
-    id: string
-    email: string
-    name: string
-    role: string
+export interface AuthState {
+    isInitialized: boolean
+    isAuthenticated: boolean
+    user: User | null
 }

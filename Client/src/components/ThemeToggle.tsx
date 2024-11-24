@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from '~/store/reducers/store'
 
 const ThemeToggle: React.FC = () => {
     const dispatch = useAppDispatch()
-    const theme = useAppSelector((state) => state.themes.mode)
+    const currentTheme = useAppSelector((state) => state.theme.mode)
 
     const handleToggle = () => {
         dispatch(toggleTheme())
@@ -12,7 +12,7 @@ const ThemeToggle: React.FC = () => {
 
     return (
         <button className="btn btn-primary text-primary-content" onClick={handleToggle}>
-            {theme}
+            {currentTheme}
         </button>
     )
 }

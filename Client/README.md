@@ -2,17 +2,7 @@
 
 # Usage
 
-To clone and use this template type the following commands:
-
-```sh
-npx degit chrisuser/vite-complete-react-app my-app
-```
-
-```sh
-cd my-app
-```
-
-Then, based on your package manager:
+Install dependencies based on your package manager:
 
 ## npm
 
@@ -34,36 +24,17 @@ yarn
 yarn dev
 ```
 
-<br />
-
-> [!TIP]
-> Remember to update the project name inside the `package.json` file.
-
-<br />
-
 ## ⚗️ Technologies list
 
--   [TypeScript](https://www.typescriptlang.org/)
--   [Sass](https://sass-lang.com/)
--   [Redux Toolkit](https://redux-toolkit.js.org/)
--   [Router](https://reactrouter.com/)
--   [Axios](https://axios-http.com/)
--   [Moment](https://momentjs.com/)
--   [ESlint](https://eslint.org/) & [Prettier](https://prettier.io/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Sass](https://sass-lang.com/)
+- [Redux Toolkit](https://redux-toolkit.js.org/)
+- [Router](https://reactrouter.com/)
+- [Axios](https://axios-http.com/)
+- [Moment](https://momentjs.com/)
+- [ESlint](https://eslint.org/) & [Prettier](https://prettier.io/)
 
 ---
-
-<br />
-
-> [!TIP]
-> After cloning the repo you can delete all the previous text for a cleaner README.
-
-<br />
-
-This is a blank README file that you can customize at your needs.\
-Describe your project, how it works and how to contribute to it.
-
-<br />
 
 # 🚀 Available Scripts
 
@@ -73,13 +44,13 @@ In the project directory, you can run:
 
 ## ⚡️ start
 
-```
+```sh
 npm start
 ```
 
 or
 
-```
+```sh
 yarn start
 ```
 
@@ -90,13 +61,13 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 ## 🧪 test
 
-```
+```sh
 npm test
 ```
 
 or
 
-```
+```sh
 yarn test
 ```
 
@@ -106,13 +77,13 @@ Launches the test runner in the interactive watch mode.
 
 ## 🦾 build
 
-```
+```sh
 npm build
 ```
 
 or
 
-```
+```sh
 yarn build
 ```
 
@@ -125,13 +96,13 @@ The build is minified and the filenames include the hashes.
 
 ## 🧶 lint
 
-```
+```sh
 npm lint
 ```
 
 or
 
-```
+```sh
 yarn lint
 ```
 
@@ -141,13 +112,13 @@ Creates a `.eslintcache` file in which ESLint cache is stored. Running this comm
 
 ## 🎯 format
 
-```
+```sh
 npm format
 ```
 
 or
 
-```
+```sh
 yarn format
 ```
 
@@ -165,17 +136,22 @@ This is the structure of the files in the project:
     ├── src                     # source files
     │   ├── __tests__           # all test files
     │   ├── components
+    │   ├── contexts
+    │   ├── guards
+    │   ├── layouts
     │   ├── pages
     │   ├── resources           # images, constants and other static resources
+    │   ├── routes              # all routes are defined here
+    │   ├── services      
     │   ├── store               # Redux store
     │   │   ├── actions         # store's actions
     │   │   └── reducers        # store's reducers
-    │   ├── styles
     │   ├── types               # data interfaces
     │   ├── utility             # utilities functions and custom components
     │   ├── App.tsx
+    │   ├── index.css
     │   ├── index.tsx
-    │   ├── RootComponent.tsx   # React component with all the routes
+    │   ├── RootComponent.tsx   # React component
     │   ├── serviceWorker.ts
     │   ├── setupTests.ts
     │   └── vite-env.d.ts
@@ -188,6 +164,7 @@ This is the structure of the files in the project:
     ├── jest.config.cjs
     ├── package.json
     ├── README.md
+    ├── tailwind.config.js
     ├── tsconfig.json
     └── vite.config.json
 ```

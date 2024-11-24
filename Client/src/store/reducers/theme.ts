@@ -1,28 +1,7 @@
 import { createReducer } from '@reduxjs/toolkit'
-import { toggleTheme, setTheme } from '../actions/theme'
-// Define the theme options
-export const themes = [
-    'light',
-    'dark',
-    'cupcake',
-    'retro',
-    'valentine',
-    'halloween',
-    'garden',
-    'forest',
-    'aqua',
-    'luxury',
-    'dracula',
-    'lemonade',
-    'night',
-    'coffee',
-    'winter'
-] as const
-export type Theme = (typeof themes)[number]
-
-interface ThemeState {
-    mode: Theme
-}
+import { themes } from '~/resources/common-constants'
+import { ThemeState } from '~/types/reducers'
+import { setTheme, toggleTheme } from '../actions/theme'
 
 const initialState: ThemeState = {
     mode: 'light' // default theme

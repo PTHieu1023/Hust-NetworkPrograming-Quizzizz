@@ -3,7 +3,7 @@ import ThemePicker from '~/components/ThemePicker'
 import ThemeToggle from '~/components/ThemeToggle'
 import { APP_NAME } from '~/resources/common-constants'
 
-const GuestLayout = () => {
+const GuestLayout: React.FC = () => {
     return (
         <>
             <div className="navbar fixed top-0 bg-base-100 mx-2">

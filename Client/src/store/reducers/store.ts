@@ -4,19 +4,19 @@ import { FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE, persistReducer, pers
 import storage from 'redux-persist/lib/storage' // defaults to localStorage
 import auth from './auth'
 import data from './data'
-import themes from './theme'
+import theme from './theme'
 
 const rootReducer = combineReducers({
     auth,
     data,
-    themes
+    theme
 })
 
 const persistedReducer = persistReducer(
     {
         key: 'root',
         storage,
-        whitelist: ['auth', 'data', 'theme']
+        whitelist: ['data', 'theme']
     },
     rootReducer
 )

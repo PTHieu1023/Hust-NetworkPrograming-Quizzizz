@@ -6,7 +6,7 @@ import { signIn } from '~/store/actions/auth'
 import { useAppDispatch } from '~/store/reducers/store'
 
 const Login: React.FC = () => {
-    const [data, setData] = useState({ username: '', password: '' })
+    const [data, setData] = useState({ username: 'testuser', password: 'password123' })
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const dispatch = useAppDispatch()
@@ -18,12 +18,17 @@ const Login: React.FC = () => {
         setError(null) // Reset error state on each submission attempt
 
         try {
-            const user = await UserService.login(data.username, data.password)
-            console.log(user)
-            dispatch(signIn({ user: user }))
-            navigate(ROUTES.HOMEPAGE_ROUTE)
-        } catch (err) {
-            setError('Login failed. Please check your credentials.')
+            if (!data.username || !data.password) {
+                throw new Error('Please fill in all fields')
+            }
+            const response = await UserService.login(data.username, data.password)
+            if (!response.success) {
+                throw new Error(response.message)
+            }
+            dispatch(signIn({ user: response.data }))
+            navigate(ROUTES.DASHBOARD_ROUTE)
+        } catch (err: any) {
+            setError(err.message)
         } finally {
             setLoading(false)
         }
@@ -46,7 +51,10 @@ const Login: React.FC = () => {
                             className="grow"
                             placeholder="Username"
                             value={data.username}
-                            onChange={(e) => setData({ ...data, username: e.target.value })}
+                            onChange={(e) => {
+                                setData({ ...data, username: e.target.value })
+                                setError(null)
+                            }}
                         />
                     </label>
 
@@ -63,7 +71,10 @@ const Login: React.FC = () => {
                             className="grow"
                             placeholder="Password"
                             value={data.password}
-                            onChange={(e) => setData({ ...data, password: e.target.value })}
+                            onChange={(e) => {
+                                setData({ ...data, password: e.target.value })
+                                setError(null)
+                            }}
                         />
                     </label>
 
