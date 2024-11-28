@@ -4,7 +4,7 @@ import { Theme, themes } from '~/resources/common-constants'
 import { setTheme } from '~/store/actions/theme'
 import { useAppDispatch, useAppSelector } from '~/store/reducers/store'
 
-const ThemePicker: React.FC = () => {
+const ThemePicker: React.FC<{ className?: string }> = ({ className = '', ...props }) => {
     const dispatch = useAppDispatch()
 
     const handleSetTheme = (theme: Theme) => {
@@ -13,14 +13,14 @@ const ThemePicker: React.FC = () => {
     const currentTheme = useAppSelector((state) => state.theme.mode)
 
     return (
-        <div className="dropdown dropdown-end hidden md:block">
-            <div tabIndex={0} role="button" className="btn mx-2">
+        <div {...props} className={`dropdown dropdown-end hidden md:block ${className}`}>
+            <div tabIndex={0} role="button" className="btn">
                 Theme
                 <FontAwesomeIcon icon={faAngleDown} />
             </div>
             <div
                 tabIndex={0}
-                className="dropdown-content bg-base-200 text-base-content rounded-box z-[1] w-52 max-h-[calc(100vh-20rem)] overflow-y-auto border border-white/5 shadow-2xl outline outline-1 outline-white/5"
+                className="dropdown-content top-16 bg-base-200 text-base-content rounded-box z-[1] w-52 max-h-[calc(100vh-20rem)] overflow-y-auto border border-white/5 shadow-2xl outline outline-1 outline-white/5"
             >
                 <div className="grid grid-cols-1 gap-3 p-3">
                     {themes.map((theme, index) => (

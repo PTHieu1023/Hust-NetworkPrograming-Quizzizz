@@ -12,4 +12,9 @@
         -ms-overflow-style: none; /* IE and Edge */
         scrollbar-width: none; /* Firefox */
     }
+
+    /* Pause the animate */
+    .paused {
+        animation-play-state: paused;
+    }
 }
