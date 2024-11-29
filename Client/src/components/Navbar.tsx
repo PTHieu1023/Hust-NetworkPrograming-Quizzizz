@@ -1,9 +1,9 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { APP_NAME } from '~/resources/common-constants'
 import { ROUTES } from '~/resources/routes-constants'
 import Navigation from './Navigation'
 import ThemePicker from './ThemePicker'
-import { useState } from 'react'
 import ThemeToggle from './ThemeToggle'
 
 const Navbar: React.FC = () => {
@@ -14,7 +14,7 @@ const Navbar: React.FC = () => {
     }
 
     return (
-        <div className="fixed top-0 w-full flex flex-col">
+        <div className="fixed top-0 z-10 w-full flex flex-col shadow-md bg-base-100">
             <div className="navbar justify-between w-full">
                 <div>
                     <Link to="/" className="text-lg font-bold hover:opacity-75 hidden md:block px-4 text-primary">
@@ -24,12 +24,12 @@ const Navbar: React.FC = () => {
                         Logo
                     </Link>
 
-                    <div className="hidden lg:flex justify-start items-center gap-2">
+                    <div className="hidden md:flex justify-start items-center gap-2">
                         <Navigation />
                     </div>
                 </div>
 
-                <div className="lg:flex justify-end gap-2 hidden">
+                <div className="md:flex justify-end gap-2 hidden">
                     <Link to={ROUTES.LOGIN_ROUTE} className="btn w-24">
                         Log in
                     </Link>
@@ -38,7 +38,7 @@ const Navbar: React.FC = () => {
                     </Link>
                     <ThemePicker />
                 </div>
-                <div className="flex justify-end gap-2 lg:hidden">
+                <div className="flex justify-end gap-2 md:hidden">
                     <ThemeToggle />
                     <label className="btn btn-circle swap swap-rotate">
                         <input type="checkbox" onClick={handleMenuToggle} />
@@ -54,18 +54,20 @@ const Navbar: React.FC = () => {
                 </div>
             </div>
 
-            <div className={`flex flex-col h-80 bg-neutral transition-all duration-300 ${isMenuOpen ? '' : 'hidden'}`}>
-                <ul className="menu bg-base-200 rounded-box w-56">
-                    <li>
-                        <a>Item 1</a>
-                    </li>
-                    <li>
-                        <a>Item 2</a>
-                    </li>
-                    <li>
-                        <a>Item 3</a>
-                    </li>
-                </ul>
+            <div
+                className={`absolute top-full left-0 z-1 w-full min-h-80 bg-base-100 shadow-md flex flex-col justify-between p-4 md:hidden transition-all duration-300 ease-in-out ${
+                    isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-5 pointer-events-none'
+                }`}
+            >
+                <Navigation className="flex-col ml-0" />
+                <div className="flex flex-col gap-2 mb-8">
+                    <Link to={ROUTES.LOGIN_ROUTE} className="btn w-full mt-2">
+                        Log in
+                    </Link>
+                    <Link to={ROUTES.REGISTER_ROUTE} className="btn btn-primary w-full mt-2 text-primary-content">
+                        Sign up
+                    </Link>
+                </div>
             </div>
         </div>
     )

@@ -1,8 +1,8 @@
 import Dropdown from './common/Dropdown'
 
-const Navigation: React.FC = () => {
+const Navigation: React.FC<{ className?: string }> = ({ className = '', ...props }) => {
     return (
-        <div className="flex gap-2 ml-8">
+        <div {...props} className={`flex gap-2 ml-8 ${className}`}>
             <Dropdown className="dropdown-hover" tabIndex={1} tabName="Home">
                 <li>
                     <a>Item 1</a>
