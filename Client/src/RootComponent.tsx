@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import { BrowserRouter as Router } from 'react-router-dom'
+import './animations.css'
 import './index.css'
 import Routes from './routes/Router'
 import { useAppSelector } from './store/reducers/store'

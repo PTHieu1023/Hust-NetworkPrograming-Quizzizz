@@ -17,19 +17,19 @@ const Navbar: React.FC = () => {
         <div className="fixed top-0 z-10 w-full flex flex-col shadow-md bg-base-100">
             <div className="navbar justify-between w-full">
                 <div>
-                    <Link to="/" className="text-lg font-bold hover:opacity-75 hidden md:block px-4 text-primary">
+                    <Link to="/" className="text-lg font-bold hover:opacity-75 hidden lg:block px-4 text-primary">
                         {APP_NAME}
                     </Link>
-                    <Link to="/" className="text-lg font-bold hover:opacity-75 md:hidden px-4">
+                    <Link to="/" className="text-lg font-bold hover:opacity-75 lg:hidden px-4">
                         Logo
                     </Link>
 
-                    <div className="hidden md:flex justify-start items-center gap-2">
+                    <div className="hidden lg:flex justify-start items-center gap-2">
                         <Navigation />
                     </div>
                 </div>
 
-                <div className="md:flex justify-end gap-2 hidden">
+                <div className="lg:flex justify-end gap-2 hidden">
                     <Link to={ROUTES.LOGIN_ROUTE} className="btn w-24">
                         Log in
                     </Link>
@@ -38,8 +38,18 @@ const Navbar: React.FC = () => {
                     </Link>
                     <ThemePicker />
                 </div>
-                <div className="flex justify-end gap-2 md:hidden">
-                    <ThemeToggle />
+
+                <div className="flex justify-end gap-2 lg:hidden">
+                    <div className="md:flex hidden gap-2">
+                        <Link to={ROUTES.LOGIN_ROUTE} className="btn w-24">
+                            Log in
+                        </Link>
+                        <Link to={ROUTES.REGISTER_ROUTE} className="btn btn-primary w-24 text-primary-content">
+                            Sign up
+                        </Link>
+                        <ThemePicker />
+                    </div>
+                    <ThemeToggle className="md:hidden" />
                     <label className="btn btn-circle swap swap-rotate">
                         <input type="checkbox" onClick={handleMenuToggle} />
 
@@ -55,12 +65,13 @@ const Navbar: React.FC = () => {
             </div>
 
             <div
-                className={`absolute top-full left-0 z-1 w-full min-h-80 bg-base-100 shadow-md flex flex-col justify-between p-4 md:hidden transition-all duration-300 ease-in-out ${
+                className={`absolute top-full left-0 z-1 w-full h-fit min-h-40 bg-base-100 shadow-md flex flex-col justify-between p-4 lg:hidden transition-all duration-300 ease-in-out ${
                     isMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-5 pointer-events-none'
                 }`}
             >
                 <Navigation className="flex-col ml-0" />
-                <div className="flex flex-col gap-2 mb-8">
+
+                <div className="flex flex-col gap-2 mb-8 md:hidden mx-6">
                     <Link to={ROUTES.LOGIN_ROUTE} className="btn w-full mt-2">
                         Log in
                     </Link>
