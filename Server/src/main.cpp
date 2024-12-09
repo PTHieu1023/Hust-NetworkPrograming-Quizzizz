@@ -1,12 +1,11 @@
-#include <iostream>
-
 #include "fcp/core/server.h"
+
+#include "handlers/auth/AuthController.h"
 
 int main()
 {
-    std::unique_ptr<fcp::core::Server> server = std::make_unique<fcp::core::Server>();
-    server->start([&](fcp::core::Server *server) {
-        std::cout << "Server started" << std::endl;
-    });
+    fcp::Server server(PORT);
+    server.use(0x00, auth::login);
+    server.start();
     return 0;
 }
