@@ -148,8 +148,6 @@ namespace fcp {
             return;
         }
 
-        // TODO: Create new session
-
         std::cout << "New connection accepted: " << client_socket << std::endl;
     }
 
@@ -179,14 +177,13 @@ namespace fcp {
                 buffer[bytes_read] = '\0';
 
                 std::cout << "Received from client " << client_socket << ": " << buffer << std::endl;
-                int16_t opcode = buffer[1] << 8 | buffer[0];
+                int16_t opcode = buffer[0] << 8 | buffer[1];
                 std::string payload(buffer + 2);
-                // TODO: Handle client request
+
                 const auto ctx = std::make_unique<Context>(client_socket, payload);
                 this->handlers_map_[opcode](ctx.get());
             }
         }catch (std::exception &e) {
-            std::cout << e.what() << std::endl;
             write(client_socket, e.what(), sizeof(e.what()));
         }
     }
