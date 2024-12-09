@@ -1,80 +1,193 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include <sstream>
+#include <iostream>
+#include <sys/epoll.h>
 #include <arpa/inet.h>
-#include <cstdio>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <functional>
-#include <thread>
 #include <unistd.h>
-#include <memory>
+#include <fcntl.h>
+#include <unordered_map>
+#include <vector>
+#include <functional>
 
-namespace fcp::core
-{
-    using IPv4SocketAddress = struct sockaddr_in;
-    using SocketAddress = struct sockaddr;
+#include "fcp/core/context.h"
 
-    class Server
-    {
-    private:
-        IPv4SocketAddress address;
+#define MAX_EVENTS 100
+#define BUFFER_SIZE 4096
+#define PORT 8080
+namespace fcp {
+    class Server{
     public:
-        Server() = default;
-        ~Server() = default;
-        void setConfig();
-        void start(const std::function<void(Server *)> &callback);
-    };
-
-    inline void handle_connection(const int client_socket, SocketAddress socket_address, int addrlen) {
-        printf("Connection established\n");
-        char buffer[1024];
-        std::ostringstream req_stream;
-        while (recv(client_socket, buffer, sizeof(buffer), 0) > 0) {
-            req_stream << buffer;
-        }
-        printf("Request received: %s\n", req_stream.str().c_str());
-        close(client_socket);
-    };
-
-    inline void Server::start(const std::function<void(Server *)> &callback) {
-        const int server_fd = socket(AF_INET, SOCK_STREAM, 0);
-        if (server_fd < 0) {
-            perror("Socket failed");
-            exit(EXIT_FAILURE);
+        explicit Server(const int port) : port_(port), server_socket_(-1), epoll_fd_(-1) {}
+        ~Server()
+        {
+            if (server_socket_ != -1)
+                close(server_socket_);
+            if (epoll_fd_ != -1)
+                close(epoll_fd_);
         }
 
-        address.sin_family = AF_INET;
-        address.sin_addr.s_addr = INADDR_ANY;
-        address.sin_port = htons(8080);
+        void start();
+        Server* use(int16_t opcode,const std::function<void(Context*)>& handler);
 
-        if (bind(server_fd, reinterpret_cast<SocketAddress*>(&address), sizeof(address)) < 0) {
+    private:
+        int port_;
+        int server_socket_;
+        int epoll_fd_;
+
+        std::unordered_map<int16_t, std::function<void(Context*)>> handlers_map_;
+
+        void handle_new_connection() const;
+        void handle_client_data(int client_socket);
+    };
+
+
+    inline void Server::start()
+    {
+        // Tạo socket
+        server_socket_ = socket(AF_INET, SOCK_STREAM, 0);
+        if (server_socket_ < 0)
+        {
+            perror("Socket creation failed");
+            return;
+        }
+
+        sockaddr_in server_addr{};
+        server_addr.sin_family = AF_INET;
+        server_addr.sin_addr.s_addr = INADDR_ANY;
+        server_addr.sin_port = htons(port_);
+
+        if (bind(server_socket_, reinterpret_cast<struct sockaddr *>(&server_addr), sizeof(server_addr)) < 0)
+        {
             perror("Bind failed");
-            exit(EXIT_FAILURE);
+            close(server_socket_);
+            return;
         }
 
-        if(listen(server_fd, SOMAXCONN) < 0 ) {
+        if (listen(server_socket_, 10) < 0)
+        {
             perror("Listen failed");
-            exit(EXIT_FAILURE);
+            close(server_socket_);
+            return;
         }
 
-        callback(this);
+        std::cout << "Server listening on port " << port_ << std::endl;
+
+        const int flags = fcntl(server_socket_, F_GETFL, 0);
+        fcntl(server_socket_, F_SETFL, flags | O_NONBLOCK);
+
+        epoll_fd_ = epoll_create1(0);
+        if (epoll_fd_ < 0)
+        {
+            perror("Epoll creation failed");
+            close(server_socket_);
+            return;
+        }
+
+        epoll_event ev{};
+        ev.events = EPOLLIN;
+        ev.data.fd = server_socket_;
+        if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, server_socket_, &ev) < 0)
+        {
+            perror("Failed to add server socket to epoll");
+            close(server_socket_);
+            close(epoll_fd_);
+            return;
+        }
+
+        std::vector<epoll_event> events(MAX_EVENTS);
 
         while (true)
         {
-            int addrlen;
-            SocketAddress client_address;
-            int client_socket = accept(server_fd, &client_address, reinterpret_cast<socklen_t *>(&addrlen));
-            if (client_socket < 0)
-                continue;
-            std::thread clientThread([client_socket, client_address, addrlen]() {
-                handle_connection(client_socket, client_address, addrlen);
-            });
-            clientThread.detach();
+            const int event_count = epoll_wait(epoll_fd_, events.data(), MAX_EVENTS, -1);
+            if (event_count < 0)
+            {
+                perror("Epoll wait failed");
+                break;
+            }
+
+            for (int i = 0; i < event_count; ++i)
+            {
+                if (events[i].data.fd == server_socket_)
+                    handle_new_connection();
+                else
+                    handle_client_data(events[i].data.fd);
+            }
         }
-        close(server_fd);
     }
+
+    inline Server * Server::use(const int16_t opcode,const std::function<void(Context *)> &handler) {
+        if (handlers_map_.find(opcode) != handlers_map_.end())
+            throw std::invalid_argument("Opcode has been used");
+        this->handlers_map_[opcode] = handler;
+        return this;
+    }
+
+    inline void Server::handle_new_connection() const
+    {
+        sockaddr_in client_addr{};
+        socklen_t client_len = sizeof(client_addr);
+        int client_socket = accept(server_socket_, reinterpret_cast<struct sockaddr *>(&client_addr), &client_len);
+        if (client_socket < 0)
+        {
+            perror("Accept failed");
+            return;
+        }
+
+        const int flags = fcntl(client_socket, F_GETFL, 0);
+        fcntl(client_socket, F_SETFL, flags | O_NONBLOCK);
+
+        // Thêm client socket vào epoll
+        epoll_event ev{};
+        ev.events = EPOLLIN | EPOLLET;
+        ev.data.fd = client_socket;
+        if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, client_socket, &ev) < 0)
+        {
+            perror("Failed to add client socket to epoll");
+            close(client_socket);
+            return;
+        }
+
+        std::cout << "New connection accepted: " << client_socket << std::endl;
+    }
+
+    inline void Server::handle_client_data(int client_socket)
+    {
+        try {
+            char buffer[BUFFER_SIZE];
+            while (true) {
+                const ssize_t bytes_read = read(client_socket, buffer, sizeof(buffer) - 1);
+                if (bytes_read < 0)
+                {
+                    if (errno == EAGAIN || errno == EWOULDBLOCK)
+                    {
+                        break;
+                    }
+                    perror("Read failed");
+                    close(client_socket);
+                    return;
+                }
+                else if (bytes_read == 0)
+                {
+                    std::cout << "Client disconnected: " << client_socket << std::endl;
+                    // TODO: Clear session
+                    close(client_socket);
+                    return;
+                }
+                buffer[bytes_read] = '\0';
+
+                std::cout << "Received from client " << client_socket << ": " << buffer << std::endl;
+                int16_t opcode = buffer[0] << 8 | buffer[1];
+                std::string payload(buffer + 2);
+
+                const auto ctx = std::make_unique<Context>(client_socket, payload);
+                this->handlers_map_[opcode](ctx.get());
+            }
+        }catch (std::exception &e) {
+            write(client_socket, e.what(), sizeof(e.what()));
+        }
+    }
+
 }
 
 #endif
