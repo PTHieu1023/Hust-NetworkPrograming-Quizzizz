@@ -21,8 +21,8 @@ class UserService {
     async login(credentials: LoginCredentials) {
         const response = await axios.post(`${API_URL}/login`, credentials)
         console.log(response)
-        const { user, token, expiredIn } = response.data
-        this.saveToken(token, expiredIn)
+        const { user, token, expiresIn } = response.data
+        this.saveToken(token, expiresIn)
         return user
     }
 
@@ -38,8 +38,8 @@ class UserService {
     }
 
     // Save token to localStorage
-    private saveToken(token: string, expiredIn: number) {
-        const expiry = new Date().getTime() + expiredIn * 1000
+    private saveToken(token: string, expiresIn: number) {
+        const expiry = new Date().getTime() + expiresIn * 1000
         localStorage.setItem(this.tokenKey, token)
         localStorage.setItem(this.expiryKey, expiry.toString())
     }
@@ -68,8 +68,8 @@ class UserService {
         const response = await axios.post(`${API_URL}/refresh-token`, null, {
             headers: { Authorization: `Bearer ${this.getToken()}` }
         })
-        const { token, expiredIn } = response.data
-        this.saveToken(token, expiredIn)
+        const { token, expiresIn } = response.data
+        this.saveToken(token, expiresIn)
         return token
     }
 

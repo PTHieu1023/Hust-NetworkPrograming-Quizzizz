@@ -1,11 +1,18 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet, useSearchParams } from 'react-router-dom'
+import Footer from '~/components/Footer'
+import Header from '~/components/Header'
+import { useAppSelector } from '~/store/reducers/store'
 
 const AuthLayout: React.FC = () => {
+    const { user } = useAppSelector((state) => state.auth)
+    const [queryParams] = useSearchParams()
+    const tab = queryParams.get('tab') ?? 'home'
     return (
-        <div className="h-full">
-            <h1 className="text-center">This is the layout that require authentication</h1>
+        <>
+            <Header tab={tab} user={user} />
             <Outlet />
-        </div>
+            <Footer />
+        </>
     )
 }
 

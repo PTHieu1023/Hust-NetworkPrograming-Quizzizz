@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { APP_NAME } from '~/resources/common-constants'
 import { ROUTES } from '~/resources/routes-constants'
+import userService from '~/services/user'
 import Navigation from './Navigation'
 import ThemePicker from './ThemePicker'
 import ThemeToggle from './ThemeToggle'
 
 const Navbar: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
+    const isAuthenticated = userService.isAuthenticated()
 
     const handleMenuToggle = () => {
         setIsMenuOpen(!isMenuOpen)
@@ -29,28 +31,29 @@ const Navbar: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="lg:flex justify-end gap-2 hidden">
-                    <Link to={ROUTES.LOGIN_ROUTE} className="btn w-24">
-                        Log in
-                    </Link>
-                    <Link to={ROUTES.REGISTER_ROUTE} className="btn btn-primary w-24 text-primary-content">
-                        Sign up
-                    </Link>
-                    <ThemePicker />
-                </div>
+                <div className="flex justify-end gap-2">
+                    {isAuthenticated ? (
+                        <div className="md:flex hidden gap-2">
+                            <ThemePicker />
+                            <Link to={ROUTES.DASHBOARD_ROUTE} className="btn btn-accent w-24">
+                                Dashboard
+                            </Link>
+                        </div>
+                    ) : (
+                        <div className="md:flex hidden gap-2">
+                            <Link to={ROUTES.LOGIN_ROUTE} className="btn w-24">
+                                Log in
+                            </Link>
+                            <Link to={ROUTES.REGISTER_ROUTE} className="btn btn-primary w-24 text-primary-content">
+                                Sign up
+                            </Link>
+                            <ThemePicker />
+                        </div>
+                    )}
 
-                <div className="flex justify-end gap-2 lg:hidden">
-                    <div className="md:flex hidden gap-2">
-                        <Link to={ROUTES.LOGIN_ROUTE} className="btn w-24">
-                            Log in
-                        </Link>
-                        <Link to={ROUTES.REGISTER_ROUTE} className="btn btn-primary w-24 text-primary-content">
-                            Sign up
-                        </Link>
-                        <ThemePicker />
-                    </div>
                     <ThemeToggle className="md:hidden" />
-                    <label className="btn btn-circle swap swap-rotate">
+
+                    <label className="btn btn-circle swap swap-rotate lg:hidden">
                         <input type="checkbox" onClick={handleMenuToggle} />
 
                         <svg className="swap-off fill-current" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 512 512">
@@ -71,14 +74,22 @@ const Navbar: React.FC = () => {
             >
                 <Navigation className="flex-col ml-0" />
 
-                <div className="flex flex-col gap-2 mb-8 md:hidden mx-6">
-                    <Link to={ROUTES.LOGIN_ROUTE} className="btn w-full mt-2">
-                        Log in
-                    </Link>
-                    <Link to={ROUTES.REGISTER_ROUTE} className="btn btn-primary w-full mt-2 text-primary-content">
-                        Sign up
-                    </Link>
-                </div>
+                {isAuthenticated ? (
+                    <div className="md:hidden m-6">
+                        <Link to={ROUTES.DASHBOARD_ROUTE} className="btn btn-accent w-full">
+                            Dashboard
+                        </Link>
+                    </div>
+                ) : (
+                    <div className="flex flex-col gap-2 md:hidden m-6">
+                        <Link to={ROUTES.LOGIN_ROUTE} className="btn w-full">
+                            Log in
+                        </Link>
+                        <Link to={ROUTES.REGISTER_ROUTE} className="btn btn-primary w-full text-primary-content">
+                            Sign up
+                        </Link>
+                    </div>
+                )}
             </div>
         </div>
     )

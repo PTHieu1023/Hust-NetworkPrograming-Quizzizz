@@ -45,7 +45,7 @@ const HomePage: React.FC = () => {
 
             <div className="flex flex-col items-center justify-center">
                 <div className="flex overflow-hidden group max-w-2xl mx-6 py-6">
-                    <div className="flex animate-loopScroll group-hover:paused w-full">
+                    <div className="flex loop-scroll group-hover:paused w-full">
                         {logos.map((logo, index) => (
                             <div key={index} className="md:w-32 md:h-32 w-16 h-16 rounded-lg flex items-center justify-center">
                                 <div className="md:h-24 md:w-24 h-12 w-12">
@@ -54,7 +54,7 @@ const HomePage: React.FC = () => {
                             </div>
                         ))}
                     </div>
-                    <div className="flex animate-loopScroll group-hover:paused w-full" aria-hidden="true">
+                    <div className="flex loop-scroll group-hover:paused w-full" aria-hidden="true">
                         {logos.map((logo, index) => (
                             <div key={index} className="md:w-32 md:h-32 w-16 h-16 rounded-lg flex items-center justify-center">
                                 <div className="md:h-24 md:w-24 h-12 w-12">
