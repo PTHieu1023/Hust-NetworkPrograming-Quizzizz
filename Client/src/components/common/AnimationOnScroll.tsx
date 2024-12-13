@@ -3,13 +3,15 @@ import React, { useEffect, useRef, useState } from 'react'
 interface AnimateOnScrollProps {
     children: React.ReactNode
     animationClass?: string // CSS class for the animation
-    initialClass?: string // Initial hidden class
+    className?: string
+    threshold?: number // Intersection observer threshold
 }
 
 const AnimateOnScroll: React.FC<AnimateOnScrollProps> = ({
     children,
     animationClass = 'fade-in', // Default animation
-    initialClass = 'hidden-initial' // Initial hidden state
+    className = '',
+    threshold = 0.2 // Default threshold
 }) => {
     const [isVisible, setIsVisible] = useState(false)
     const elementRef = useRef<HTMLDivElement>(null)
@@ -21,7 +23,7 @@ const AnimateOnScroll: React.FC<AnimateOnScrollProps> = ({
                     setIsVisible(true)
                 }
             },
-            { threshold: 0.2 } // Trigger when 20% of the element is visible
+            { threshold: threshold } // Trigger when 20% of the element is visible
         )
 
         if (elementRef.current) {
@@ -36,7 +38,7 @@ const AnimateOnScroll: React.FC<AnimateOnScrollProps> = ({
     }, [])
 
     return (
-        <div ref={elementRef} className={`${initialClass} ${isVisible ? animationClass : ''}`}>
+        <div ref={elementRef} className={`${className} ${isVisible ? animationClass : ''}`}>
             {children}
         </div>
     )

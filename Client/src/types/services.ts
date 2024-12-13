@@ -1,5 +1,23 @@
 export type user = {
-    userid: string
+    id: string
     username: string
     role?: string
+}
+
+export type question = {
+    id: string
+    question: string
+    type?: string
+    answers?: string[]
+}
+
+export type quizRoom = {
+    id: string
+    name: string
+    host?: user
+    players?: user[]
+    questions?: question[]
+    startedAt?: number
+    endedAt?: number
+    timeRemaining?: number
 }

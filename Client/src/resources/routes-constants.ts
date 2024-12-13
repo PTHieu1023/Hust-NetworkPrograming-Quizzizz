@@ -5,5 +5,6 @@ export const ROUTES = {
     DASHBOARD_ROUTE: '/dashboard',
     FORBIDDEN_ROUTE: '/forbidden',
     GUIDED_TOUR_ROUTE: '/guided-tour',
-    PROFILE_ROUTE: '/profile'
+    PROFILE_ROUTE: '/profile',
+    QUIZ_ROUTE: '/quiz'
 }

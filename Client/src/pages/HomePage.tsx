@@ -14,7 +14,7 @@ const HomePage: React.FC = () => {
         <>
             <Navbar />
             <div className="hero lg:h-screen lg:mt-0 lg:py-0 mt-16 py-12">
-                <div className="hero-content text-center">
+                <AnimateOnScroll className="hero-content text-center" animationClass="zoom-in">
                     <div className="max-w-xl">
                         <h1 className="lg:text-7xl md:text-5xl text-3xl font-bold">"Hello there"</h1>
                         <p className="text-xl my-4 opacity-65">- Almost everybody</p>
@@ -40,7 +40,7 @@ const HomePage: React.FC = () => {
                             </Link>
                         </div>
                     </div>
-                </div>
+                </AnimateOnScroll>
             </div>
 
             <div className="flex flex-col items-center justify-center">
@@ -49,7 +49,7 @@ const HomePage: React.FC = () => {
                         {logos.map((logo, index) => (
                             <div key={index} className="md:w-32 md:h-32 w-16 h-16 rounded-lg flex items-center justify-center">
                                 <div className="md:h-24 md:w-24 h-12 w-12">
-                                    <img src={`/public/logos/${logo}`} alt="logo" className="object-cover w-full h-full" />
+                                    <img src={`/logos/${logo}`} alt="logo" className="object-cover w-full h-full" />
                                 </div>
                             </div>
                         ))}
@@ -58,7 +58,7 @@ const HomePage: React.FC = () => {
                         {logos.map((logo, index) => (
                             <div key={index} className="md:w-32 md:h-32 w-16 h-16 rounded-lg flex items-center justify-center">
                                 <div className="md:h-24 md:w-24 h-12 w-12">
-                                    <img src={`/public/logos/${logo}`} alt="logo" className="object-cover w-full h-full" />
+                                    <img src={`/logos/${logo}`} alt="logo" className="object-cover w-full h-full" />
                                 </div>
                             </div>
                         ))}

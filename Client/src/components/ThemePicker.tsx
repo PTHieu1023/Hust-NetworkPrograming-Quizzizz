@@ -1,4 +1,4 @@
-import { faAngleDown, faCheck } from '@fortawesome/free-solid-svg-icons'
+import { faAngleDown, faCheck, faPalette } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Theme, themes } from '~/resources/common-constants'
 import { setTheme } from '~/store/actions/theme'
@@ -13,8 +13,9 @@ const ThemePicker: React.FC<{ className?: string }> = ({ className = '', ...prop
     const currentTheme = useAppSelector((state) => state.theme.mode)
 
     return (
-        <div {...props} className={`dropdown dropdown-end hidden md:block ${className}`}>
-            <div tabIndex={0} role="button" className="btn">
+        <div {...props} className={`dropdown dropdown-end ${className}`}>
+            <div tabIndex={0} role="button" className="btn flex justify-around items-center">
+                <FontAwesomeIcon icon={faPalette} />
                 Theme
                 <FontAwesomeIcon icon={faAngleDown} />
             </div>

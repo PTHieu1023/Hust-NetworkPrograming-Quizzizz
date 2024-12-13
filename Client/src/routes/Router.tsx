@@ -3,12 +3,14 @@ import AuthGuard from '~/guards/AuthGuard'
 import GuestGuard from '~/guards/GuestGuard'
 import AuthLayout from '~/layouts/AuthLayout'
 import GuestLayout from '~/layouts/GuestLayout'
+import QuizLayout from '~/layouts/QuizLayout'
 import LoginPage from '~/pages/Auth/LoginPage'
 import RegisterPage from '~/pages/Auth/RegisterPage'
 import DashboardPage from '~/pages/DashboardPage'
 import ForbiddenPage from '~/pages/Error/ForbiddenPage'
 import NotFoundPage from '~/pages/Error/NotFoundPage'
 import HomePage from '~/pages/HomePage'
+import SetupPracticePage from '~/pages/Quiz/SetupPracticePage'
 import { ROUTES } from '~/resources/routes-constants'
 
 const Routes = () => {
@@ -44,6 +46,19 @@ const Routes = () => {
                 {
                     path: ROUTES.DASHBOARD_ROUTE,
                     element: <DashboardPage />
+                }
+            ]
+        },
+        {
+            element: (
+                <AuthGuard>
+                    <QuizLayout />
+                </AuthGuard>
+            ),
+            children: [
+                {
+                    path: `${ROUTES.QUIZ_ROUTE}/join/:mode`,
+                    element: <SetupPracticePage />
                 }
             ]
         },
