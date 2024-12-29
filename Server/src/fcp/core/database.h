@@ -29,7 +29,7 @@ namespace fcp {
         }
 
         // Execute an SQL query (for SELECT queries)
-        pqxx::result query(const std::string& sql) {
+        pqxx::result query(const std::string& sql) const {
             try {
                 pqxx::work txn(*conn);
                 pqxx::result result = txn.exec(sql);
@@ -41,7 +41,7 @@ namespace fcp {
         }
 
         // Execute an SQL command (for UPDATE, INSERT, DELETE)
-        void exec(const std::string& sql) {
+        void exec(const std::string& sql) const{
             try {
                 pqxx::work txn(*conn);
                 txn.exec(sql);  // Execute the SQL command
@@ -57,7 +57,7 @@ namespace fcp {
         DB() {
             // Initialize the connection to the database
             try {
-                conn = std::make_unique<pqxx::connection>("host=localhost dbname=quizz user=quizz password=quizz");
+                conn = std::make_unique<pqxx::connection>("host=cms-se-hust-g9-cms-se-hust-g9.a.aivencloud.com port=28117 dbname=quizz user=quizz password=quizz");
                 if (!conn->is_open()) {
                     throw std::runtime_error("Failed to connect to database");
                 }
