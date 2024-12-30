@@ -14,7 +14,7 @@ namespace auth{
         ctx->writeClient((std::byte*)(res.c_str()), sizeof(res));
     }
 
-    inline void logout() {
+    inline void logout(const fcp::Context *ctx) {
     }
 }
 #endif //AUTHCONTROLLER_H

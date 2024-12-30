@@ -10,7 +10,7 @@
 
 namespace controller::auth{
     void login(const fcp::Context* ctx);
-    void logout();
+    void logout(const fcp::Context *ctx);
 
     inline void login(const fcp::Context *ctx) {
         std::vector<std::unique_ptr<model::auth::Account>> accounts = service::auth::getAccounts();
@@ -21,7 +21,8 @@ namespace controller::auth{
         ctx->writeClient(reinterpret_cast<const std::byte*>(jsonAccounts.dump().c_str()), sizeof(model::auth::Account) * accounts.size());
     }
 
-    inline void logout() {
+    inline void logout(const fcp::Context *ctx) {
+        return;
     }
 }
 #endif //AUTHCONTROLLER_H

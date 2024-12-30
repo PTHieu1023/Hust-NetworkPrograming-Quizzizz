@@ -1,4 +1,11 @@
 # Development instruction
+
+## 0. Setup and Install
+- Clone repo: ```git clone --recursive -j8 git://github.com/foo/bar.git```
+- Run cmake: Go to Server directory then run ```cmake .```
+*If cmake version is invalid => update cmake to latest version or edit minimum require version to version in pc.*
+- Run execute file after build on port 8080
+
 ## 1. Project structure
 - external: Third-party library (json, etc...)
 - src: Source code of project
