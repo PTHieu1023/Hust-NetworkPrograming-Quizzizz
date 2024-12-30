@@ -1,8 +1,5 @@
-import axios from 'axios'
-import { AUTH_TOKEN, BASE_URL, TOKEN_EXPIRY } from '~/resources/common-constants'
-
-const API_URL = `${BASE_URL}/api`
-
+import { AUTH_TOKEN } from '~/resources/common-constants'
+import WebSocketService from './webSocket'
 export interface LoginCredentials {
     username: string
     password: string
@@ -10,67 +7,69 @@ export interface LoginCredentials {
 
 export interface RegisterData {
     email: string
+    name: string
     username: string
     password: string
 }
 
 class UserService {
-    private tokenKey = AUTH_TOKEN
-    private expiryKey = TOKEN_EXPIRY
+    private readonly LOGIN_OPCODE = 0x1234
+    private readonly LOGOUT_OPCODE = 0x0000
+    private readonly REGISTER_OPCODE = 0x0001
+    private readonly tokenKey = AUTH_TOKEN
     // Login a user
-    async login(credentials: LoginCredentials) {
-        const response = await axios.post(`${API_URL}/login`, credentials)
-        console.log(response)
-        const { user, token, expiresIn } = response.data
-        this.saveToken(token, expiresIn)
-        return user
+    login(credentials: LoginCredentials) {
+        return new Promise((resolve, reject) => {
+            WebSocketService.getInstance().send(this.LOGIN_OPCODE, credentials)
+
+            WebSocketService.getInstance().onMessage(this.LOGIN_OPCODE, (data) => {
+                console.log('Login response:', data)
+                if (data.token) {
+                    this.saveToken(data.token)
+                    resolve(data)
+                } else {
+                    reject(data)
+                }
+            })
+        })
     }
 
-    // Register a new user
-    async register(data: RegisterData) {
-        const response = await axios.post(`${API_URL}/register`, data)
-        return response.data
+    // // Register a new user
+    register(data: RegisterData) {
+        return new Promise((resolve, reject) => {
+            WebSocketService.getInstance().send(this.REGISTER_OPCODE, data)
+
+            WebSocketService.getInstance().onMessage(this.REGISTER_OPCODE, (data) => {
+                console.log('Register response:', data)
+                if (data.token) {
+                    this.saveToken(data.token)
+                    resolve(data)
+                } else {
+                    reject(data)
+                }
+            })
+        })
     }
 
     // Logout the user
     logout() {
+        WebSocketService.getInstance().send(this.LOGOUT_OPCODE, {})
         this.clearToken()
     }
 
     // Save token to localStorage
-    private saveToken(token: string, expiresIn: number) {
-        const expiry = new Date().getTime() + expiresIn * 1000
+    private saveToken(token: string) {
         localStorage.setItem(this.tokenKey, token)
-        localStorage.setItem(this.expiryKey, expiry.toString())
     }
 
     // Clear token
     private clearToken() {
         localStorage.removeItem(this.tokenKey)
-        localStorage.removeItem(this.expiryKey)
     }
 
     // Get token
-    getToken(): string | null {
-        const token = localStorage.getItem(this.tokenKey)
-        const expiry = localStorage.getItem(this.expiryKey)
-
-        if (token && expiry && Date.now() < parseInt(expiry, 10)) {
-            return token // Token is valid
-        } else {
-            this.clearToken() // Token expired
-            return null
-        }
-    }
-
-    // Refresh token
-    async refreshToken() {
-        const response = await axios.post(`${API_URL}/refresh-token`, null, {
-            headers: { Authorization: `Bearer ${this.getToken()}` }
-        })
-        const { token, expiresIn } = response.data
-        this.saveToken(token, expiresIn)
-        return token
+    getToken() {
+        return localStorage.getItem(this.tokenKey)
     }
 
     // Check if the user is authenticated

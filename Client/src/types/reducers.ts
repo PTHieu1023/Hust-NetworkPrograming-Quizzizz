@@ -14,7 +14,6 @@ export type ReduxAction<T> = (data: T) => ReduxActionData<T>
 
 export interface AuthState {
     user: user | null
-    token: string | null
     loading: boolean
     error: string | null
 }

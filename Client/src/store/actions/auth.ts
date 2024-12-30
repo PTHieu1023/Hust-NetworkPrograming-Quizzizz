@@ -15,8 +15,8 @@ export const loginUser = createAsyncThunk('auth/login', async (credentials: Logi
 // Register User
 export const registerUser = createAsyncThunk('auth/register', async (data: RegisterData, thunkAPI) => {
     try {
-        await userService.register(data)
-        return 'Registration successful'
+        const user = await userService.register(data)
+        return user
     } catch (error: any) {
         return thunkAPI.rejectWithValue(error.response?.data?.message || 'Registration failed')
     }
@@ -25,19 +25,9 @@ export const registerUser = createAsyncThunk('auth/register', async (data: Regis
 // Logout User
 export const logoutThunk = createAsyncThunk('auth/logout', async (_, thunkAPI) => {
     try {
-        userService.logout() // Clear token
-        thunkAPI.dispatch(logoutUser()) // Clear state
+        userService.logout()
+        thunkAPI.dispatch(logoutUser())
     } catch (error) {
         console.error('Logout failed:', error)
-    }
-})
-
-// Refresh Token
-export const refreshToken = createAsyncThunk('auth/refreshToken', async (_, thunkAPI) => {
-    try {
-        const token = await userService.refreshToken()
-        return token
-    } catch (error: any) {
-        return thunkAPI.rejectWithValue('Token refresh failed')
     }
 })

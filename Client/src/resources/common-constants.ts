@@ -1,7 +1,5 @@
 export const APP_NAME = 'React App'
-export const BASE_URL = 'http://localhost:5000'
 export const AUTH_TOKEN = 'authToken'
-export const TOKEN_EXPIRY = 'token_expiry'
 export const themes = [
     'light',
     'dark',

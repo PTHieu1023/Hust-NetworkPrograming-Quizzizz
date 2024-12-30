@@ -1,10 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { loginUser, logoutThunk, registerUser, refreshToken } from '../actions/auth'
 import { AuthState } from '~/types/reducers'
+import { loginUser, logoutThunk, registerUser } from '../actions/auth'
+import { user } from './../../types/services'
 
 const initialState: AuthState = {
     user: null,
-    token: null,
     loading: false,
     error: null
 }
@@ -15,7 +15,6 @@ const authSlice = createSlice({
     reducers: {
         logoutUser: (state) => {
             state.user = null
-            state.token = null
             state.error = null
         },
         clearError: (state) => {
@@ -31,7 +30,7 @@ const authSlice = createSlice({
             })
             .addCase(loginUser.fulfilled, (state, action) => {
                 state.loading = false
-                state.user = action.payload
+                state.user = action.payload as user
             })
             .addCase(loginUser.rejected, (state, action) => {
                 state.loading = false
@@ -54,15 +53,6 @@ const authSlice = createSlice({
             // Logout
             .addCase(logoutThunk.fulfilled, (state) => {
                 state.user = null
-                state.token = null
-            })
-
-            // Refresh Token
-            .addCase(refreshToken.fulfilled, (state, action) => {
-                state.token = action.payload
-            })
-            .addCase(refreshToken.rejected, (state) => {
-                state.token = null
             })
     }
 })
