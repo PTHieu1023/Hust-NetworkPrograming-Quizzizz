@@ -18,9 +18,11 @@ namespace controller::auth{
         for (const auto& account : accounts) {
             jsonAccounts.push_back(account.get()->toJson());
         }
-        ctx->writeClient(reinterpret_cast<const std::byte*>(jsonAccounts.dump().c_str()), sizeof(model::auth::Account) * accounts.size());
+        std::string payload = ctx->getProps("username");
+        printf("%s\n", payload.c_str());
+        const std::string res = jsonAccounts.dump().c_str();
+        ctx->writeClient(res);
     }
-
     inline void logout(const fcp::Context *ctx) {
         return;
     }
