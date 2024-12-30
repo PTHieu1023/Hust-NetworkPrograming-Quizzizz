@@ -1,0 +1,164 @@
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes zoomIn {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes zoomOut {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+}
+
+@keyframes flyIn {
+    0% {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes flyOut {
+    0% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+}
+
+@keyframes floatIn {
+    0% {
+        transform: translateY(50%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes floatOut {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(50%);
+        opacity: 0;
+    }
+}
+
+@keyframes splitIn {
+    0% {
+        transform: scaleY(0.5);
+        opacity: 0;
+    }
+    100% {
+        transform: scaleY(1);
+        opacity: 1;
+    }
+}
+
+@keyframes splitOut {
+    0% {
+        transform: scaleY(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scaleY(0.5);
+        opacity: 0;
+    }
+}
+
+@keyframes loopScroll {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+/* Animation utility classes */
+.fade-in {
+    animation: fadeIn 1s ease-in-out forwards;
+}
+
+.fade-out {
+    animation: fadeOut 1s ease-in-out forwards;
+}
+
+.zoom-in {
+    animation: zoomIn 0.5s ease-in-out forwards;
+}
+
+.zoom-out {
+    animation: zoomOut 0.5s ease-in-out forwards;
+}
+
+.fly-in {
+    animation: flyIn 1s ease-in-out forwards;
+}
+
+.fly-out {
+    animation: flyOut 1s ease-in-out forwards;
+}
+
+.float-in {
+    animation: floatIn 1s ease-in-out forwards;
+}
+
+.float-out {
+    animation: floatOut 1s ease-in-out forwards;
+}
+
+.split-in {
+    animation: splitIn 1s ease-in-out forwards;
+}
+
+.split-out {
+    animation: splitOut 1s ease-in-out forwards;
+}
+
+.hidden-initial {
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.loop-scroll {
+    animation: loopScroll 10s linear infinite;
+}
