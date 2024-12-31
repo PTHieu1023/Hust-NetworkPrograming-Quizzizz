@@ -6,6 +6,7 @@ import { RegisterData } from '~/services/user'
 import { registerUser } from '~/store/actions/auth'
 import { clearError } from '~/store/reducers/auth'
 import { useAppDispatch, useAppSelector } from '~/store/reducers/store'
+import { notify } from '~/utility/functions'
 
 interface RegisterFormData extends RegisterData {
     confirmPassword: string
@@ -32,6 +33,7 @@ const RegisterPage: React.FC = () => {
     // Clear the error after 5 seconds
     useEffect(() => {
         if (error) {
+            notify(error, 'error')
             const timer = setTimeout(() => {
                 dispatch(clearError())
             }, 5000)
@@ -46,8 +48,6 @@ const RegisterPage: React.FC = () => {
             <div className="flex justify-center items-center max-w-xl w-full h-fit py-8 mx-4 bg-base-200 rounded-box shadow-xl">
                 <div className="flex flex-col justify-center items-center gap-3 w-full max-w-80">
                     <h2 className="text-2xl text-primary">Sign up</h2>
-
-                    {error && <p className="text-error text-sm">{error}</p>}
 
                     <form className="flex flex-col gap-2 w-full" onSubmit={handleSubmit(onSubmit)}>
                         <div className="flex flex-col gap-2 justify-center min-h-64">
@@ -68,10 +68,18 @@ const RegisterPage: React.FC = () => {
                                     type="username"
                                     className="grow"
                                     placeholder="Username"
-                                    {...register('username', { required: 'username is required' })}
+                                    {...register('username', { required: 'Username is required' })}
                                 />
                             </label>
                             {errors.username && <span className="text-xs text-error">{errors.username.message}</span>}
+
+                            <label className="input input-bordered w-full flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4 opacity-70">
+                                    <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM12.735 14c.618 0 1.093-.561.872-1.139a6.002 6.002 0 0 0-11.215 0c-.22.578.254 1.139.872 1.139h9.47Z" />
+                                </svg>
+                                <input type="name" className="grow" placeholder="Your name" {...register('name', { required: 'Name is required' })} />
+                            </label>
+                            {errors.name && <span className="text-xs text-error">{errors.name.message}</span>}
 
                             <label className="input input-bordered w-full flex items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-4 w-4 opacity-70">

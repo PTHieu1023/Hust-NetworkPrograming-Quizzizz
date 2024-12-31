@@ -1,8 +1,13 @@
-/**
- * This function can be used anywhere in the app to greet the user
- * @param userName The user's first name
- * @returns A kind greeting message
- */
-export const sayHello = (userName: string): string => {
-    return 'Welcome ' + userName + '!'
+import { toast } from 'react-toastify'
+
+export const notify = (message: string, status?: 'info' | 'success' | 'warning' | 'error') => {
+    if (status) {
+        toast[status](message, {
+            position: 'top-right'
+        })
+    } else {
+        toast(message, {
+            position: 'top-right'
+        })
+    }
 }

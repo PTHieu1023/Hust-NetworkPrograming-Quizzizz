@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { AuthState } from '~/types/reducers'
-import { loginUser, logoutThunk, registerUser } from '../actions/auth'
+import { changePassword, loginUser, logoutThunk, registerUser } from '../actions/auth'
 import { user } from './../../types/services'
 
 const initialState: AuthState = {
@@ -19,6 +19,7 @@ const authSlice = createSlice({
         },
         clearError: (state) => {
             state.error = null
+            state.loading = false
         }
     },
     extraReducers: (builder) => {
@@ -53,6 +54,11 @@ const authSlice = createSlice({
             // Logout
             .addCase(logoutThunk.fulfilled, (state) => {
                 state.user = null
+            })
+
+            // Change Password
+            .addCase(changePassword.rejected, (state, action) => {
+                state.error = action.payload as string
             })
     }
 })

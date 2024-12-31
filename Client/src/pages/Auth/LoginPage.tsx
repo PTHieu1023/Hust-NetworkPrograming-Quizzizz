@@ -6,6 +6,7 @@ import { LoginCredentials } from '~/services/user'
 import { loginUser } from '~/store/actions/auth'
 import { clearError } from '~/store/reducers/auth'
 import { useAppDispatch, useAppSelector } from '~/store/reducers/store'
+import { notify } from '~/utility/functions'
 
 const LoginPage: React.FC = () => {
     const {
@@ -19,7 +20,6 @@ const LoginPage: React.FC = () => {
     const dispatch = useAppDispatch()
 
     const onSubmit = async (data: LoginCredentials) => {
-        console.log(data)
         dispatch(loginUser(data))
     }
 
@@ -28,6 +28,7 @@ const LoginPage: React.FC = () => {
     // Clear the error after 5 seconds
     useEffect(() => {
         if (error) {
+            notify(error, 'error')
             const timer = setTimeout(() => {
                 dispatch(clearError())
             }, 5000)
@@ -42,12 +43,6 @@ const LoginPage: React.FC = () => {
             <div className="flex justify-center items-center max-w-xl w-full h-fit py-8 mx-4 bg-base-200 rounded-box shadow-xl">
                 <div className="flex flex-col justify-center items-center gap-3 w-full max-w-80">
                     <h2 className="text-2xl text-primary">Welcome back!</h2>
-
-                    {error && (
-                        <p role="alert" className="text-error text-sm">
-                            {error}
-                        </p>
-                    )}
 
                     <form className="flex flex-col gap-2 w-full" onSubmit={handleSubmit(onSubmit)}>
                         <div className="flex flex-col gap-2 justify-center min-h-64">

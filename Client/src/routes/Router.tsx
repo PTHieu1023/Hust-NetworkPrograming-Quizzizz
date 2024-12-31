@@ -5,6 +5,7 @@ import AuthLayout from '~/layouts/AuthLayout'
 import GuestLayout from '~/layouts/GuestLayout'
 import QuizLayout from '~/layouts/QuizLayout'
 import LoginPage from '~/pages/Auth/LoginPage'
+import ProfilePage from '~/pages/Auth/ProfilePage'
 import RegisterPage from '~/pages/Auth/RegisterPage'
 import DashboardPage from '~/pages/DashboardPage'
 import ForbiddenPage from '~/pages/Error/ForbiddenPage'
@@ -46,6 +47,10 @@ const Routes = () => {
                 {
                     path: ROUTES.DASHBOARD_ROUTE,
                     element: <DashboardPage />
+                },
+                {
+                    path: ROUTES.PROFILE_ROUTE,
+                    element: <ProfilePage />
                 }
             ]
         },
