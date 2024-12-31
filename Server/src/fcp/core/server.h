@@ -127,7 +127,7 @@ namespace fcp {
     {
         sockaddr_in client_addr{};
         socklen_t client_len = sizeof(client_addr);
-        int client_socket = accept(server_socket_, reinterpret_cast<struct sockaddr *>(&client_addr), &client_len);
+        const int client_socket = accept(server_socket_, reinterpret_cast<struct sockaddr *>(&client_addr), &client_len);
         if (client_socket < 0)
         {
             perror("Accept failed");
@@ -176,9 +176,10 @@ namespace fcp {
                 }
                 buffer[bytes_read] = '\0';
 
-                std::cout << "Received from client " << client_socket << ": " << buffer << std::endl;
                 int16_t opcode = buffer[0] << 8 | buffer[1];
                 std::string payload(buffer + 2);
+
+                printf("Received data from client %d: %d [%s]\n",client_socket, opcode, payload.c_str());
 
                 const auto ctx = std::make_unique<Context>(client_socket, payload);
                 this->handlers_map_[opcode](ctx.get());

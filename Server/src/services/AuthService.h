@@ -5,95 +5,90 @@
 #include <memory>
 #include <pqxx/pqxx>
 
-#include "models/Account.h"
 #include "fcp/core/database.h"
+
+#include "models/Account.h"
+#include "models/UserSession.h"
 
 #include "utils/password.h"
 
 namespace service::auth {
-    inline int login(int socket_id, const std::string& username, const std::string& password) {
+    std::unique_ptr<model::auth::UserSession> login(const std::string& username, const std::string& password);
+    void signUp(const std::string &username, const std::string &password, const std::string &name);
+    void logout(std::string session_id);
+
+    inline std::unique_ptr<model::auth::UserSession> login(const std::string& username, const std::string& password) {
         try {
             pqxx::work txn(*fcp::DB::getInstance()->getConnection());
 
-            pqxx::result query_set = txn.exec_params(
-                "SELECT id FROM account WHERE username = $1 AND password = $2",
-                username, utils::password::hash_password(password)
+            // Query the database to find the user by username and password
+            const pqxx::result query_set = txn.exec_params(
+                "SELECT user_id, username, name FROM users WHERE username = $1 AND password = $2",
+                username, utils::password::hash_password(password)  // Assuming password is hashed
             );
 
             if (query_set.empty()) {
-                std::cerr << "Invalid username or password." << std::endl;
-                return -1;
+                throw std::runtime_error("Invalid username or password");
             }
 
-            // Extract user ID
-            int user_id = query_set[0]["id"].as<int>();
+            // Create a new session object as std::unique_ptr
+            auto session = std::make_unique<model::auth::UserSession>();
+            session->setId(query_set[0]["user_id"].as<int>())
+                   ->setUsername(query_set[0]["username"].as<std::string>())
+                   ->setName(query_set[0]["name"].as<std::string>());
 
-            // Check if socket_fd already exists and delete it
-            txn.exec_params("DELETE FROM session WHERE socket_fd = $1", socket_id);
-
-            // Insert a new session
+            // Insert a new session into the database and get the session ID
             const pqxx::result new_session = txn.exec_params(
-                "INSERT INTO session (user_id, socket_fd) VALUES ($1, $2) RETURNING id;",
-                user_id, socket_id
+                "INSERT INTO session (user_id) VALUES ($1) RETURNING session_id;",
+                session->getId()
             );
 
             if (new_session.empty()) {
-                std::cerr << "Failed to create a new session." << std::endl;
-                return -1; // Session creation failed
+                throw std::runtime_error("Session creation failed");
             }
 
-            // Commit transaction
-            txn.commit();
+            // Set the session ID from the database
+            session->setSessionId(new_session[0]["session_id"].as<std::string>());
 
-            std::cout << "Login successful. Session ID: " << new_session[0]["id"].as<int>() << std::endl;
-            return new_session[0]["id"].as<int>(); // Return session ID
+            txn.commit();  // Commit the transaction
 
+            return session;  // Return the session as std::unique_ptr
         } catch (const std::exception& e) {
-            throw e;
+            throw std::runtime_error("Unexpected error: " + std::string(e.what()));
         }
     }
 
-    inline int logout(int socket_id) {
+    inline void logout(std::string session_id) {
         try {
-            // Establish database connection
             pqxx::work txn(*fcp::DB::getInstance()->getConnection());
 
-            // Delete session for the given socket ID
-            txn.exec_params("DELETE FROM session WHERE socket_fd = $1", socket_id);
+            txn.exec_params("DELETE FROM session WHERE session_id = $1", session_id);
 
-            // Commit transaction
             txn.commit();
 
-            std::cout << "Logout successful for socket ID: " << socket_id << std::endl;
-            return 0; // Success
-
         } catch (const std::exception& e) {
-            std::cerr << "Error on logout: " << e.what() << std::endl;
-            return -1; // Exception occurred
+            throw std::runtime_error("Unexpected error: " + std::string(e.what()));
         }
     }
 
-    inline std::vector<std::unique_ptr<model::auth::Account>> getAccounts() {
+    inline void signUp(const std::string &username, const std::string &password, const std::string &name) {
         try {
-            // Start a transaction
-            pqxx::work txn(*fcp::DB::getInstance()->getConnection());
-            std::vector<std::unique_ptr<model::auth::Account>> accounts;
-            // Execute the query
-            pqxx::result query_set = txn.exec("SELECT id, username, password FROM account");
+            const auto conn = fcp::DB::getInstance()->getConnection();
 
-            // Loop through the query result
-            for (const auto& row : query_set) {
-                // Create an Account object from the row data
-                accounts.push_back(std::make_unique<model::auth::Account>(
-                    row["id"].as<int>(),
-                    row["username"].as<std::string>(),
-                    row["password"].as<std::string>()
-                ));
-            }
+            pqxx::work txn(*conn);
 
-            return accounts;
-        } catch (const std::exception& e) {
-            throw e;
+            txn.exec_params(
+                "INSERT INTO users (username, password, name) VALUES ($1, $2, $3)",
+                username,
+                utils::password::hash_password(password),
+                name
+            );
+
+            txn.commit();
+        } catch (const pqxx::sql_error &e) {
+            throw std::runtime_error("Database error: " + std::string(e.what()));
+        } catch (const std::exception &e) {
+            throw std::runtime_error("Unexpected error: " + std::string(e.what()));
         }
     }
 
