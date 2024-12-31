@@ -2,9 +2,15 @@
 
 ## 0. Setup and Install
 - Clone repo: ```git clone --recursive -j8 git://github.com/foo/bar.git```
+  - Add postgres driver lib pqxx: 
+```sudo apt update```
+```sudo apt upgrade```
+```sudo apt install libpqxx-dev```
 - Run cmake: Go to Server directory then run ```cmake .```
 *If cmake version is invalid => update cmake to latest version or edit minimum require version to version in pc.*
 - Run execute file after build on port 8080
+
+**Cause this is not implemented graceful shutdown show sometime when it shutdown the port is not released, just wait a bit then restart**
 
 ## 1. Project structure
 - external: Third-party library (json, etc...)
