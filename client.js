@@ -44,18 +44,43 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
-
 async function main() {
-    while (true) {
-        const session_id = await askQuestion('Enter session_id: ');
-        // const password = await askQuestion('Enter password: ');
 
-        const payload = { session_id };
+    let currentSession;
 
-        try {
-            // Send data with action code 0x0002
-            const response = await sendMessage('127.0.0.1', 8080, 0x0002, payload);
+    const handleAction = {
+        'login': async () => {
+            const username = await askQuestion("Enter username:");
+            const password = await askQuestion("Enter password");
+            const response = await sendMessage('127.0.0.1', 8080, 0x0000, { username, password });
+            currentSession = response.sessionId;
             console.log('Server Response:', response);
+        },
+        'signUp': async () => {
+            const username = await askQuestion("Enter username:");
+            const password = await askQuestion("Enter password");
+            const name = await askQuestion("Enter name: ");
+            const response = await sendMessage('127.0.0.1', 8080, 0x0001, { username, password, name });
+            console.log('Server Response:', response);
+        },
+        'logout': async () => {
+            const response = await sendMessage('127.0.0.1', 8080, 0x0002, { sessionId: currentSession });
+            console.log('Server Response:', response);
+            currentSession = null;
+        },
+        'changePassword': async () => {
+            const username = await askQuestion("Enter old password:");
+            const password = await askQuestion("Enter new password:");
+            const response = await sendMessage('127.0.0.1', 8080, 0x0003, { sessionId: currentSession, });
+            console.log('Server Response:', response);
+            currentSession = null;
+        }
+    }
+
+    while (true) {
+        const action = await askQuestion("Choose action");
+        try {
+            handleAction[action]();
         } catch (error) {
             console.error('Error:', error);
         }

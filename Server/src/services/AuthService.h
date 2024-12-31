@@ -1,13 +1,11 @@
 #ifndef AUTH_H
 #define AUTH_H
 
-#include <vector>
 #include <memory>
 #include <pqxx/pqxx>
 
 #include "fcp/core/database.h"
 
-#include "models/Account.h"
 #include "models/UserSession.h"
 
 #include "utils/password.h"
@@ -16,6 +14,7 @@ namespace service::auth {
     std::unique_ptr<model::auth::UserSession> login(const std::string& username, const std::string& password);
     void signUp(const std::string &username, const std::string &password, const std::string &name);
     void logout(std::string session_id);
+    void updatePassword(const std::string& sessionId, const std::string& oldPassword, const std::string& newPassword);
 
     inline std::unique_ptr<model::auth::UserSession> login(const std::string& username, const std::string& password) {
         try {
@@ -53,7 +52,9 @@ namespace service::auth {
             txn.commit();  // Commit the transaction
 
             return session;  // Return the session as std::unique_ptr
-        } catch (const std::exception& e) {
+        } catch (const pqxx::sql_error &e) {
+            throw std::runtime_error("Database error: " + std::string(e.what()));
+        } catch (const std::exception &e) {
             throw std::runtime_error("Unexpected error: " + std::string(e.what()));
         }
     }
@@ -66,10 +67,48 @@ namespace service::auth {
 
             txn.commit();
 
+        } catch (const pqxx::sql_error &e) {
+            throw std::runtime_error("Database error: " + std::string(e.what()));
+        } catch (const std::exception &e) {
+            throw std::runtime_error("Unexpected error: " + std::string(e.what()));
+        }
+    }
+
+    inline void updatePassword(const std::string& sessionId, const std::string& oldPassword, const std::string& newPassword) {
+        try {
+            pqxx::work txn(*fcp::DB::getInstance()->getConnection());
+
+            // Step 1: Validate session and old password
+            const pqxx::result query_set = txn.exec_params(
+                "SELECT user_id FROM session WHERE session_id = $1",
+                sessionId
+            );
+
+            if (query_set.empty()) {
+                throw std::runtime_error("Unauthorized session");
+            }
+
+            int userId = query_set[0]["user_id"].as<int>();
+
+            const pqxx::result update_result = txn.exec_params(
+                "UPDATE users SET password = $1 WHERE user_id = $2 AND password = $3",
+                utils::password::hash_password(newPassword), // Ensure the new password is hashed
+                userId,
+                utils::password::hash_password(oldPassword) // Re-hash the old password for comparison
+            );
+
+            if (update_result.affected_rows() == 0) {
+                throw std::runtime_error("Password update failed. Either the old password was incorrect or no matching user found.");
+            }
+
+            txn.commit();
+        } catch (const pqxx::sql_error& e) {
+            throw std::runtime_error("Database error: " + std::string(e.what()));
         } catch (const std::exception& e) {
             throw std::runtime_error("Unexpected error: " + std::string(e.what()));
         }
     }
+
 
     inline void signUp(const std::string &username, const std::string &password, const std::string &name) {
         try {
