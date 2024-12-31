@@ -5,8 +5,7 @@
 
 #include <nlohmann/json.hpp>
 
-namespace fcp
-{
+namespace fcp {
     class Context
     {
     private:
@@ -24,8 +23,11 @@ namespace fcp
         this->props = nlohmann::json::parse(json_string);
     }
 
-    inline std::string Context::getProps(const std::string &key) const {
-        return this->props[key];
+    inline std::string Context::getProps(const std::string &key) const{
+        if (props.find(key) == props.end()) {
+            throw std::invalid_argument("Missing property: " + key);
+        }
+        return props[key];
     }
 
     inline void Context::writeClient(const std::string &buffer) const {
