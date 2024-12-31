@@ -11,6 +11,7 @@ namespace controller::auth{
     void login(const fcp::Context* ctx);
     void logout(const fcp::Context *ctx);
     void signUp(const fcp::Context *ctx);
+    void changePassword(const fcp::Context *ctx);
 
     inline void signUp(const fcp::Context* ctx) {
         nlohmann::json json;
@@ -47,6 +48,26 @@ namespace controller::auth{
         try {
             service::auth::logout(ctx->getProps("session_id"));
             json["message"] = "Logout success!";
+        }catch (std::exception& e) {
+            json["err"] = e.what();
+        }
+        const std::string res = json.dump().c_str();
+        printf("Response: %s\n", res.c_str());
+        ctx->writeClient(res);
+    }
+
+    inline void changePassword(const fcp::Context *ctx) {
+        nlohmann::json json;
+        try {
+            const std::string sessionId = ctx->getProps("sessionId");
+            const std::string oldPassword = ctx->getProps("currentPassword");
+            const std::string newPassword = ctx->getProps("newPassword");
+            const std::string confirmPassword = ctx->getProps("confirmPassword");
+            if (newPassword != confirmPassword) {
+                throw std::invalid_argument("Invalid confirmPassword");
+            }
+            service::auth::updatePassword(sessionId, oldPassword, newPassword);
+            json["message"] = "Password Updated!";
         }catch (std::exception& e) {
             json["err"] = e.what();
         }
