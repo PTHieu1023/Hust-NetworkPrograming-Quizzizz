@@ -12,7 +12,9 @@ import ForbiddenPage from '~/pages/Error/ForbiddenPage'
 import NotFoundPage from '~/pages/Error/NotFoundPage'
 import HomePage from '~/pages/HomePage'
 import CreateQuizPage from '~/pages/Quiz/CreateQuizPage'
-import SetupPracticePage from '~/pages/Quiz/SetupPracticePage'
+import HostPage from '~/pages/Quiz/HostPage'
+import SetupPage from '~/pages/Quiz/SetupPage'
+import WaitingPage from '~/pages/Quiz/WaitingPage'
 import { ROUTES } from '~/resources/routes-constants'
 
 const Routes = () => {
@@ -67,8 +69,16 @@ const Routes = () => {
             ),
             children: [
                 {
-                    path: `${ROUTES.QUIZ_ROUTE}/join/:mode`,
-                    element: <SetupPracticePage />
+                    path: `${ROUTES.QUIZ_ROUTE}/setup/:mode`,
+                    element: <SetupPage />
+                },
+                {
+                    path: `${ROUTES.QUIZ_ROUTE}/pre-game/:code`,
+                    element: <WaitingPage />
+                },
+                {
+                    path: `${ROUTES.QUIZ_ROUTE}/game/:code`,
+                    element: <HostPage />
                 }
             ]
         },

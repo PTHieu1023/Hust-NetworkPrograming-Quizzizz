@@ -5,6 +5,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import Modal from '~/components/common/Modal'
 import { ROUTES } from '~/resources/routes-constants'
 import quizService from '~/services/quiz'
+import roomService from '~/services/room'
 import { quiz } from '~/types/services'
 import { notify } from '~/utility/functions'
 
@@ -43,6 +44,7 @@ const DashboardPage: React.FC = () => {
         try {
             // Fetch quizzes from the server
             const response = await quizService.getQuizzes({ name, count, page })
+            setQuizzes(response as quiz[])
         } catch (error: any) {
             console.error(error)
             notify('Failed to fetch quizzes', 'error')
@@ -52,11 +54,34 @@ const DashboardPage: React.FC = () => {
         featchQuizzes()
     }, [])
 
-    const [searchInput, setSearchInput] = useState('')
-    const handleSearch = () => {
-        console.log(searchInput)
-        featchQuizzes(searchInput)
-        setSearchInput('')
+    const [code, setCode] = useState('')
+    const [joiningRoom, setJoiningRoom] = useState(false)
+    const handleJoinRoom = async () => {
+        if (!code) {
+            notify('Please enter a code', 'error')
+            return
+        }
+        setJoiningRoom(true)
+        try {
+            // TODO
+            // const response = await roomService.joinRoom(code)
+            // console.log(response)
+            const mockRoom = {
+                id: 1,
+                name: 'General Knowledge',
+                testId: 1,
+                code,
+                startedAt: Date.now() + 3600000
+            }
+            navigate(`${ROUTES.QUIZ_ROUTE}/pre-game/${mockRoom.code}`, {
+                state: mockRoom
+            })
+        } catch (error: any) {
+            console.error(error)
+            notify('Failed to join the room', 'error')
+        } finally {
+            setJoiningRoom(false)
+        }
     }
 
     const [showModal, setShowModal] = useState(false)
@@ -68,9 +93,9 @@ const DashboardPage: React.FC = () => {
         setChoosenQuiz(quiz)
         setShowModal(true)
     }
-    const handlePractice = (quiz: quiz) => {
-        // TODO: Implement practice
-        navigate(`${ROUTES.QUIZ_ROUTE}/join/practice`)
+    const handleCreateRom = (quiz: quiz, mode: string) => {
+        // TODO
+        navigate(`${ROUTES.QUIZ_ROUTE}/setup/${mode}`, { state: quiz })
     }
 
     return (
@@ -83,17 +108,18 @@ const DashboardPage: React.FC = () => {
                                 <div className="flex lg:flex-row flex-col gap-4 items-center justify-center w-full h-full p-2 rounded-xl shadow-lg bg-base-100">
                                     <div className="relative h-12 w-full max-w-80 rounded-xl">
                                         <input
-                                            type="text"
+                                            type="number"
                                             placeholder="Enter a code to join"
                                             className="input input-primary input-bordered w-full h-full max-w-md"
-                                            value={searchInput}
+                                            value={code}
                                             onChange={(e) => {
-                                                setSearchInput(e.target.value)
+                                                setCode(e.target.value)
                                             }}
                                         />
                                         <button
                                             className="absolute inset-y-0 right-0 btn btn-primary w-20"
-                                            onClick={handleSearch}
+                                            onClick={handleJoinRoom}
+                                            disabled={joiningRoom}
                                         >
                                             JOIN
                                         </button>
@@ -143,10 +169,12 @@ const DashboardPage: React.FC = () => {
                                                 <div className="h-3/5 w-full flex justify-center items-center overflow-hidden">
                                                     <div className="bg-gradient-to-tr from-neutral/25 to-neutral/50 w-full h-full rounded-t-lg "></div>
                                                 </div>
-                                                {/* <div className="absolute inset-x-0 top-1/2 flex justify-between items-center mx-2">
-                                                    <span className="text-xs border-[1px] p-[2px] rounded-md bg-base-100">{`${quiz.numberOfQuestions} Qs`}</span>
-                                                    <span className="text-xs border-[1px] p-[2px] rounded-md bg-base-100">{`${quiz.numberOfPlays} plays`}</span>
-                                                </div> */}
+                                                <div className="absolute inset-x-0 top-1/2 flex justify-between items-center mx-2">
+                                                    <span className="text-xs border-[1px] p-[2px] rounded-md bg-base-100">{`${quiz.questions?.length ?? 10} Qs`}</span>
+                                                    <span className="text-xs border-[1px] p-[2px] rounded-md bg-base-100">
+                                                        100 plays
+                                                    </span>
+                                                </div>
                                                 <div className="h-2/5 p-2 w-full overflow-hidden text-start text-ellipsis">
                                                     <span>{quiz.name}</span>
                                                 </div>
@@ -163,15 +191,27 @@ const DashboardPage: React.FC = () => {
                         onClose={() => setShowModal(false)}
                     >
                         <div className="flex flex-col p-4">
-                            <h1>{choosenQuiz.name}</h1>
+                            <div className="flex flex-col py-4 gap-4">
+                                <h1>{choosenQuiz.name}</h1>
+                                <span>{`Total questions: ${choosenQuiz.questions?.length ?? 0}`}</span>
+                            </div>
                             <div className="flex justify-center items-center gap-4">
                                 <button
-                                    className="btn btn-neutral"
-                                    onClick={() => handlePractice(choosenQuiz)}
+                                    className="btn btn-neutral w-40"
+                                    onClick={() =>
+                                        handleCreateRom(choosenQuiz, 'practice')
+                                    }
                                 >
                                     Practice
                                 </button>
-                                <button className="btn btn-accent">Play</button>
+                                <button
+                                    className="btn btn-accent w-40"
+                                    onClick={() =>
+                                        handleCreateRom(choosenQuiz, 'play')
+                                    }
+                                >
+                                    Challenge friends
+                                </button>
                             </div>
                         </div>
                     </Modal>

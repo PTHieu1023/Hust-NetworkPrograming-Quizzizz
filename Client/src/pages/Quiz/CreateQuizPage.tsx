@@ -62,14 +62,19 @@ const CreateQuizPage: React.FC = () => {
 
     const handleCreateQuiz = async (quiz: Omit<quiz, 'id'>) => {
         console.log(quiz)
+        if (!quiz.questions?.length) {
+            notify('Select at least one question', 'error')
+            return
+        }
         setLoading(true)
         try {
             const response = await quizService.createQuiz(quiz)
             console.log(response)
         } catch (error: any) {
             notify(error, 'error')
+        } finally {
+            setLoading(false)
         }
-        setLoading(false)
     }
 
     return (

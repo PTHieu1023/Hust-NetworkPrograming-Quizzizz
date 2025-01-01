@@ -1,6 +1,6 @@
 import { quiz } from '~/types/services'
-import WebSocketService from './webSocket'
 import userService from './user'
+import WebSocketService from './webSocket'
 
 type createQuizDataInput = Omit<quiz, 'id'>
 type getQuizzesDataInput = {
@@ -11,6 +11,7 @@ type getQuizzesDataInput = {
 
 class QuizService {
     private readonly CREATE_QUIZ_OPCODE = 0x0004
+    private readonly GET_QUIZZES_OPCODE = 0x0006
 
     private ws = WebSocketService.getInstance()
 
@@ -24,7 +25,9 @@ class QuizService {
             })
             this.ws.send(this.CREATE_QUIZ_OPCODE, {
                 sessionId: userService.getToken(),
-                ...data
+                questions: data.questions?.map((question) => question.id),
+                name: data.name,
+                isPrivate: data.isPrivate
             })
         })
     }
@@ -32,12 +35,12 @@ class QuizService {
     // Get all quizzes
     getQuizzes(data: getQuizzesDataInput) {
         return new Promise((resolve, rejects) => {
-            this.ws.onMessage(this.CREATE_QUIZ_OPCODE, (data) => {
-                this.ws.removeMessageHandler(this.CREATE_QUIZ_OPCODE)
+            this.ws.onMessage(this.GET_QUIZZES_OPCODE, (data) => {
+                this.ws.removeMessageHandler(this.GET_QUIZZES_OPCODE)
                 if (data?.status === 'Fail') rejects('Failed to get quizzes')
                 resolve(data)
             })
-            this.ws.send(this.CREATE_QUIZ_OPCODE, {
+            this.ws.send(this.GET_QUIZZES_OPCODE, {
                 sessionId: userService.getToken(),
                 ...data
             })

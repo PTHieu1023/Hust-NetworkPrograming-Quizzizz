@@ -1,15 +1,12 @@
 import { faArrowLeft, faGear } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Link, Outlet, useSearchParams } from 'react-router-dom'
+import { Link, Outlet, useParams } from 'react-router-dom'
 import ThemePicker from '~/components/ThemePicker'
 import ThemeToggle from '~/components/ThemeToggle'
 import { ROUTES } from '~/resources/routes-constants'
 
 const QuizLayout: React.FC = () => {
-    const [params] = useSearchParams()
-    const mode = params.get('mode') ?? 'practice' // TODO
-
-    console.log('mode:', mode)
+    const { mode } = useParams()
 
     return (
         <div className="w-full h-full relative">

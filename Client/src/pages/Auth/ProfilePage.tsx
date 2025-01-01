@@ -23,7 +23,7 @@ const ProfilePage: React.FC = () => {
     const dispatch = useAppDispatch()
     const [showModal, setShowModal] = useState(false)
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         dispatch(logoutThunk())
         notify('Logged out', 'success')
     }
