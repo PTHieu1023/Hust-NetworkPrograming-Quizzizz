@@ -1,4 +1,3 @@
-// src/services/websocket.service.ts
 export class WebSocketService {
     private static instance: WebSocketService
     private socket: WebSocket | null = null

@@ -28,9 +28,9 @@ class UserService {
             this.ws.onMessage(this.LOGIN_OPCODE, (data) => {
                 this.ws.removeMessageHandler(this.LOGIN_OPCODE)
                 // console.log(data)
-                if (data?.session_id) {
-                    this.saveToken(data.session_id)
-                    resolve({ username: data.username, name: data.name })
+                if (data?.sessionId) {
+                    this.saveToken(data.sessionId)
+                    resolve(data)
                 }
                 rejects(data)
             })

@@ -1,10 +1,17 @@
-import { faAngleDown, faCheck, faPalette } from '@fortawesome/free-solid-svg-icons'
+import {
+    faAngleDown,
+    faCheck,
+    faPalette
+} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Theme, themes } from '~/resources/common-constants'
 import { setTheme } from '~/store/actions/theme'
 import { useAppDispatch, useAppSelector } from '~/store/reducers/store'
 
-const ThemePicker: React.FC<{ className?: string }> = ({ className = '', ...props }) => {
+const ThemePicker: React.FC<{ className?: string }> = ({
+    className = '',
+    ...props
+}) => {
     const dispatch = useAppDispatch()
 
     const handleSetTheme = (theme: Theme) => {
@@ -14,7 +21,11 @@ const ThemePicker: React.FC<{ className?: string }> = ({ className = '', ...prop
 
     return (
         <div {...props} className={`dropdown dropdown-end ${className}`}>
-            <div tabIndex={0} role="button" className="btn flex justify-around items-center">
+            <div
+                tabIndex={0}
+                role="button"
+                className="btn flex justify-around items-center"
+            >
                 <FontAwesomeIcon icon={faPalette} />
                 Theme
                 <FontAwesomeIcon icon={faAngleDown} />
@@ -31,7 +42,12 @@ const ThemePicker: React.FC<{ className?: string }> = ({ className = '', ...prop
                             className="px-2 rounded-btn outline-base-content text-start outline-offset-1 hover:opacity-75 hover:text-primary"
                         >
                             <span>{theme}</span>
-                            {currentTheme === theme && <FontAwesomeIcon icon={faCheck} className="float-right text-accent" />}
+                            {currentTheme === theme && (
+                                <FontAwesomeIcon
+                                    icon={faCheck}
+                                    className="float-right text-accent"
+                                />
+                            )}
                         </button>
                     ))}
                 </div>

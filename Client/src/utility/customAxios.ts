@@ -11,7 +11,9 @@ const toCamelCase: any = (object: any) => {
             transformedObject = {}
             for (const key in object) {
                 if (object[key] !== undefined) {
-                    const newKey = key.replace(/(_\w)|(-\w)/g, (k) => k[1].toUpperCase())
+                    const newKey = key.replace(/(_\w)|(-\w)/g, (k) =>
+                        k[1].toUpperCase()
+                    )
                     transformedObject[newKey] = toCamelCase(object[key])
                 }
             }

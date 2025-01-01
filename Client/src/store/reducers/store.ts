@@ -1,6 +1,20 @@
-import { ThunkDispatch, UnknownAction, combineReducers, configureStore } from '@reduxjs/toolkit'
+import {
+    ThunkDispatch,
+    UnknownAction,
+    combineReducers,
+    configureStore
+} from '@reduxjs/toolkit'
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
-import { FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE, persistReducer, persistStore } from 'redux-persist'
+import {
+    FLUSH,
+    PAUSE,
+    PERSIST,
+    PURGE,
+    REGISTER,
+    REHYDRATE,
+    persistReducer,
+    persistStore
+} from 'redux-persist'
 import storage from 'redux-persist/lib/storage' // defaults to localStorage
 import auth from './auth'
 import data from './data'
@@ -26,7 +40,14 @@ export const store = configureStore({
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
             serializableCheck: {
-                ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER]
+                ignoredActions: [
+                    FLUSH,
+                    REHYDRATE,
+                    PAUSE,
+                    PERSIST,
+                    PURGE,
+                    REGISTER
+                ]
             }
         })
 })

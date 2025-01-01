@@ -14,8 +14,13 @@ const ForbiddenPage: React.FC = () => {
 
     return (
         <div className="relative flex justify-center items-center flex-col w-full h-full">
-            <h1 className="text-6xl">You do not have permission to access this page</h1>
-            <span className="cursor-pointer btn btn-ghost m-2" onClick={() => redirectToHomePage()}>
+            <h1 className="text-6xl">
+                You do not have permission to access this page
+            </h1>
+            <span
+                className="cursor-pointer btn btn-ghost m-2"
+                onClick={() => redirectToHomePage()}
+            >
                 Homepage
             </span>
         </div>

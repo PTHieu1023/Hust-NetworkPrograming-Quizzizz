@@ -16,7 +16,10 @@ const QuizLayout: React.FC = () => {
             <div className="fixed w-full h-min z-5 top-0 flex-grow-0 flex-shrink-0">
                 <div className="flex items-center justify-start flex-row flex-nowrap w-full bg-base-100 shadow-md">
                     <div className="flex p-2 mx-auto items-center justify-between flex-row flex-nowrap w-full h-full">
-                        <Link to={ROUTES.DASHBOARD_ROUTE} className="btn btn-ghost btn-circle">
+                        <Link
+                            to={ROUTES.DASHBOARD_ROUTE}
+                            className="btn btn-ghost btn-circle"
+                        >
                             <FontAwesomeIcon icon={faArrowLeft} />
                         </Link>
                         <div className="flex flex-end gap-2 px-2">

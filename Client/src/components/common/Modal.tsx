@@ -10,7 +10,13 @@ interface ModalProps {
     onClose?: () => void
 }
 
-const Modal: React.FC<ModalProps> = ({ children, id = 'modal', className = '', isOpen = false, onClose = () => {} }) => {
+const Modal: React.FC<ModalProps> = ({
+    children,
+    id = 'modal',
+    className = '',
+    isOpen = false,
+    onClose = () => {}
+}) => {
     // close on click outside
     useEffect(() => {
         const handleOutsideClick = (e: MouseEvent) => {

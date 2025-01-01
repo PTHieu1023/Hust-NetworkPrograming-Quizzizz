@@ -1,24 +1,33 @@
 export type user = {
-    id: string
+    id: number
     username: string
     name: string
     role?: string
 }
 
 export type question = {
-    id: string
+    id: number
     question: string
-    type?: string
-    answers?: string[]
+    options?: string[]
+}
+
+export type quiz = {
+    id: number
+    name: string
+    questions?: question[]
+    isPrivate?: boolean
 }
 
 export type quizRoom = {
-    id: string
+    id: number
     name: string
+    testId: string
+    code?: string
+    isPractice?: boolean
+    isPrivate?: boolean
     host?: user
     players?: user[]
-    questions?: question[]
     startedAt?: number
-    endedAt?: number
+    closedAt?: number
     timeRemaining?: number
 }

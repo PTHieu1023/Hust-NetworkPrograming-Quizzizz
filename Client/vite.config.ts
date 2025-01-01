@@ -19,7 +19,8 @@ export default defineConfig(({ mode }) => {
                     data: {
                         env: {
                             NODE_ENV: process.env.NODE_ENV,
-                            REACT_APP_CLIENT_TOKEN: process.env.REACT_APP_CLIENT_TOKEN,
+                            REACT_APP_CLIENT_TOKEN:
+                                process.env.REACT_APP_CLIENT_TOKEN,
                             REACT_APP_ENV: process.env.REACT_APP_ENV
                         }
                     }

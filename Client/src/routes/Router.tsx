@@ -11,6 +11,7 @@ import DashboardPage from '~/pages/DashboardPage'
 import ForbiddenPage from '~/pages/Error/ForbiddenPage'
 import NotFoundPage from '~/pages/Error/NotFoundPage'
 import HomePage from '~/pages/HomePage'
+import CreateQuizPage from '~/pages/Quiz/CreateQuizPage'
 import SetupPracticePage from '~/pages/Quiz/SetupPracticePage'
 import { ROUTES } from '~/resources/routes-constants'
 
@@ -51,6 +52,10 @@ const Routes = () => {
                 {
                     path: ROUTES.PROFILE_ROUTE,
                     element: <ProfilePage />
+                },
+                {
+                    path: `${ROUTES.QUIZ_ROUTE}/create`,
+                    element: <CreateQuizPage />
                 }
             ]
         },

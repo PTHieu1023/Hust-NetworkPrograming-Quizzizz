@@ -10,14 +10,23 @@ const GuestLayout: React.FC = () => {
             <div className="sticky h-min z-5 top-0 flex-grow-0 flex-shrink-0">
                 <div className="flex items-center justify-start flex-row flex-nowrap w-full shadow-lg bg-primary text-primary-content">
                     <div className="flex p-2 mx-auto items-center justify-between flex-row flex-nowrap w-full h-full">
-                        <Link to="/" className="text-lg font-bold hover:opacity-75 hidden lg:block px-4">
+                        <Link
+                            to="/"
+                            className="text-lg font-bold hover:opacity-75 hidden lg:block px-4"
+                        >
                             {APP_NAME}
                         </Link>
-                        <Link to="/" className="text-lg font-bold hover:opacity-75 lg:hidden px-4">
+                        <Link
+                            to="/"
+                            className="text-lg font-bold hover:opacity-75 lg:hidden px-4"
+                        >
                             Logo
                         </Link>
                         <div className="flex gap-2 justify-start items-center">
-                            <Link to={ROUTES.REGISTER_ROUTE} className="btn btn-secondary w-24">
+                            <Link
+                                to={ROUTES.REGISTER_ROUTE}
+                                className="btn btn-secondary w-24"
+                            >
                                 Sign up
                             </Link>
                             <ThemePicker className="hidden lg:block" />

@@ -15,7 +15,10 @@ const NotFoundPage: React.FC = () => {
     return (
         <div className="relative flex justify-center items-center flex-col w-full h-full">
             <h1 className="text-6xl">Oops 404!</h1>
-            <span className="cursor-pointer btn btn-ghost m-2" onClick={() => redirectToHomePage()}>
+            <span
+                className="cursor-pointer btn btn-ghost m-2"
+                onClick={() => redirectToHomePage()}
+            >
                 Homepage
             </span>
         </div>

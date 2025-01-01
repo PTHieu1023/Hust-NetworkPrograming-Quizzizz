@@ -15,7 +15,11 @@ const RoleBasedGuard: React.FC<RoleBasedGuardProps> = ({ roles, children }) => {
     const hasAccess = user?.role && roles.includes(user.role)
 
     // Redirect to a forbidden page or dashboard if unauthorized
-    return hasAccess ? <>{children}</> : <Navigate to={ROUTES.FORBIDDEN_ROUTE} />
+    return hasAccess ? (
+        <>{children}</>
+    ) : (
+        <Navigate to={ROUTES.FORBIDDEN_ROUTE} />
+    )
 }
 
 export default RoleBasedGuard

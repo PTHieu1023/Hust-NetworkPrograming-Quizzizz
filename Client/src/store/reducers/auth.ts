@@ -1,6 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { AuthState } from '~/types/reducers'
-import { changePassword, loginUser, logoutThunk, registerUser } from '../actions/auth'
+import {
+    changePassword,
+    loginUser,
+    logoutThunk,
+    registerUser
+} from '../actions/auth'
 import { user } from './../../types/services'
 
 const initialState: AuthState = {

@@ -38,7 +38,10 @@ const AnimateOnScroll: React.FC<AnimateOnScrollProps> = ({
     }, [])
 
     return (
-        <div ref={elementRef} className={`${className} ${isVisible ? animationClass : ''}`}>
+        <div
+            ref={elementRef}
+            className={`${className} ${isVisible ? animationClass : ''}`}
+        >
             {children}
         </div>
     )

@@ -10,7 +10,8 @@ const initialState: ThemeState = {
 const themeReducer = createReducer(initialState, (builder) => {
     builder
         .addCase(toggleTheme, (state) => {
-            const nextTheme = themes[(themes.indexOf(state.mode) + 1) % themes.length]
+            const nextTheme =
+                themes[(themes.indexOf(state.mode) + 1) % themes.length]
             state.mode = nextTheme
         })
         .addCase(setTheme, (state, action) => {

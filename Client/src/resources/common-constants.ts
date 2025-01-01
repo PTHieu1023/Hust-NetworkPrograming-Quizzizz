@@ -1,4 +1,4 @@
-export const APP_NAME = 'React App'
+export const APP_NAME = 'Quizz'
 export const AUTH_TOKEN = 'authToken'
 export const themes = [
     'light',
