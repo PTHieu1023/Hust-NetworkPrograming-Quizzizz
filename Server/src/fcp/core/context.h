@@ -25,7 +25,7 @@ namespace fcp {
 
     inline std::string Context::getProps(const std::string &key) const{
         if (props.find(key) == props.end()) {
-            throw std::invalid_argument("Missing property: " + key);
+            return nullptr;
         }
         return props[key];
     }
