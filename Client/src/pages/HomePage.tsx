@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React from 'react'
 import { Link } from 'react-router-dom'
 import AnimateOnScroll from '~/components/common/AnimationOnScroll'
+import Snowfall from '~/components/common/Snowfall'
 import Footer from '~/components/Footer'
 import Navbar from '~/components/Navbar'
 import { ROUTES } from '~/resources/routes-constants'
@@ -19,7 +20,8 @@ const HomePage: React.FC = () => {
     return (
         <>
             <Navbar />
-            <div className="hero lg:h-screen lg:mt-0 lg:py-0 mt-16 py-12">
+            <Snowfall />
+            <div className="hero lg:h-screen lg:mt-0 lg:py-0 mt-16 py-12 text-primary-content">
                 <AnimateOnScroll
                     className="hero-content text-center"
                     animationClass="zoom-in"
@@ -49,7 +51,7 @@ const HomePage: React.FC = () => {
                             </Link>
                             <Link
                                 to={ROUTES.GUIDED_TOUR_ROUTE}
-                                className="btn lg:btn-lg lg:shadow-lg btn-secondary btn-outline transition-all ease-in-out duration-300 translate-y-0 hover:-translate-y-1"
+                                className="btn lg:btn-lg lg:shadow-lg btn-neutral btn-outline transition-all ease-in-out duration-300 translate-y-0 hover:-translate-y-1"
                             >
                                 Learn more
                                 <FontAwesomeIcon icon={faAngleRight} />

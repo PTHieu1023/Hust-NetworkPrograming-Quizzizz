@@ -15,9 +15,12 @@ const RootComponent: React.FC = () => {
 
     return (
         <Router>
-            <div className="h-screen overflow-y-scroll no-scrollbar">
-                <ToastContainer />
-                <Routes />
+            <div className="relative h-screen overflow-y-scroll no-scrollbar ">
+                <div className="absolute inset-0 -z-10 bg-[url('/logos/bg_image.jpg')] bg-cover bg-fixed bg-center bg-no-repeat"></div>
+                <div className="bg-gradient-to-r from-primary/25 via-transparent to-secondary/25 absolute inset-0 z-0">
+                    <ToastContainer />
+                    <Routes />
+                </div>
             </div>
         </Router>
     )

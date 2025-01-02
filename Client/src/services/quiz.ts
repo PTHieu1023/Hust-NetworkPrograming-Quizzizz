@@ -1,3 +1,4 @@
+import { useAppSelector } from '~/store/reducers/store'
 import { quiz } from '~/types/services'
 import userService from './user'
 import WebSocketService from './webSocket'
@@ -33,7 +34,7 @@ class QuizService {
     }
 
     // Get all quizzes
-    getQuizzes(data: getQuizzesDataInput) {
+    getQuizzes(data: getQuizzesDataInput): Promise<quiz[]> {
         return new Promise((resolve, rejects) => {
             this.ws.onMessage(this.GET_QUIZZES_OPCODE, (data) => {
                 this.ws.removeMessageHandler(this.GET_QUIZZES_OPCODE)
@@ -42,6 +43,7 @@ class QuizService {
             })
             this.ws.send(this.GET_QUIZZES_OPCODE, {
                 sessionId: userService.getToken(),
+                authorId: useAppSelector((state) => state.auth.user?.id),
                 ...data
             })
         })

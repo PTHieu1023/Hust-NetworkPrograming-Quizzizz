@@ -19,10 +19,12 @@ import storage from 'redux-persist/lib/storage' // defaults to localStorage
 import auth from './auth'
 import data from './data'
 import theme from './theme'
+import quiz from './quiz'
 
 const rootReducer = combineReducers({
     data,
     auth,
+    quiz,
     theme
 })
 
@@ -30,7 +32,7 @@ const persistedReducer = persistReducer(
     {
         key: 'root',
         storage,
-        whitelist: ['data', 'auth', 'theme']
+        whitelist: ['data', 'auth', 'quiz', 'theme']
     },
     rootReducer
 )

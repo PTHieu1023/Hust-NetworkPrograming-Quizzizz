@@ -2,7 +2,6 @@ import { quizRoom } from '~/types/services'
 import userService from './user'
 import WebSocketService from './webSocket'
 
-type createRoomDataInput = Omit<quizRoom, 'id'>
 type getRoomsDataInput = {
     name: string
     count?: number
@@ -19,7 +18,7 @@ class RoomService {
     private ws = WebSocketService.getInstance()
 
     // Create a new room
-    createRoom(data: createRoomDataInput) {
+    createRoom(data: quizRoom) {
         return new Promise((resolve, rejects) => {
             this.ws.onMessage(this.CREATE_ROOM_OPCODE, (data) => {
                 this.ws.removeMessageHandler(this.CREATE_ROOM_OPCODE)
@@ -49,12 +48,25 @@ class RoomService {
     }
 
     // Join a room
-    joinRoom(code: string) {
+    joinRoom(code: string): Promise<quizRoom> {
         return new Promise((resolve, rejects) => {
             this.ws.onMessage(this.JOIN_ROOM_OPCODE, (data) => {
                 this.ws.removeMessageHandler(this.JOIN_ROOM_OPCODE)
                 if (data?.status === 'Fail') rejects('Failed to join room')
-                resolve(data)
+                const room: quizRoom = {
+                    host: {
+                        id: data?.hostId,
+                        name: data?.hostName
+                    },
+                    name: data?.name ?? 'Quiz name',
+                    code: data?.code ?? 0,
+                    testId: data?.testId ?? 0,
+                    isPractice: data?.isPractice ?? false,
+                    isPrivate: data?.isPrivate ?? false,
+                    openedAt: data?.openedAt ?? 0,
+                    closedAt: data?.closedAt ?? 0
+                }
+                resolve(room)
             })
             this.ws.send(this.JOIN_ROOM_OPCODE, {
                 sessionId: userService.getToken(),

@@ -11,7 +11,7 @@ const QuizLayout: React.FC = () => {
     return (
         <div className="w-full h-full relative">
             <div className="fixed w-full h-min z-5 top-0 flex-grow-0 flex-shrink-0">
-                <div className="flex items-center justify-start flex-row flex-nowrap w-full bg-base-100 shadow-md">
+                <div className="flex items-center justify-start flex-row flex-nowrap w-full bg-base-100 text-base-content shadow-md">
                     <div className="flex p-2 mx-auto items-center justify-between flex-row flex-nowrap w-full h-full">
                         <Link
                             to={ROUTES.DASHBOARD_ROUTE}
@@ -30,7 +30,7 @@ const QuizLayout: React.FC = () => {
                     </div>
                 </div>
             </div>
-            <div className="flex flex-col items-center py-16 min-h-screen w-full bg-base-300">
+            <div className="flex flex-col items-center py-16 min-h-screen w-full">
                 <Outlet />
             </div>
         </div>

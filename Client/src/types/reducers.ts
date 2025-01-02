@@ -1,5 +1,5 @@
 import { Theme } from '~/resources/common-constants'
-import { user } from './services'
+import { question, quizRoom, user } from './services'
 
 export interface ReducerData {
     contents: string[]
@@ -20,4 +20,13 @@ export interface AuthState {
 
 export interface ThemeState {
     mode: Theme
+}
+
+export interface QuizState {
+    room: quizRoom | null
+    questions?: question[]
+    isStarted: boolean
+    timeRemaining: number | null
+    loading: boolean
+    error: string | null
 }

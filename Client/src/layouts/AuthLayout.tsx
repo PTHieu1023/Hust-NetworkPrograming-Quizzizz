@@ -10,7 +10,7 @@ const AuthLayout: React.FC = () => {
     return (
         <>
             <Header tab={tab} user={user} />
-            <div className="flex flex-col items-center py-16 min-h-screen w-full bg-base-300">
+            <div className="flex flex-col items-center py-16 min-h-screen w-full">
                 <Outlet />
             </div>
             <Footer />

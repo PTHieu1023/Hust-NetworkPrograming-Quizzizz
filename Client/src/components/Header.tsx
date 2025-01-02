@@ -4,9 +4,9 @@ import {
     faHouse,
     faHouseChimney,
     faMagnifyingGlass,
+    faQ,
     faRightFromBracket,
-    faUser,
-    faUsersRectangle
+    faUser
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useState } from 'react'
@@ -35,7 +35,7 @@ const Header: React.FC<{ tab: string; user: any }> = ({
 
     return (
         <>
-            <div className="fixed top-0 z-10 w-full shadow-md bg-base-100">
+            <div className="fixed top-0 z-10 w-full shadow-md text-base-content bg-base-100">
                 <div className="navbar justify-between w-full">
                     <div className="md:flex gap-4 justify-start items-center hidden">
                         <Link
@@ -46,9 +46,13 @@ const Header: React.FC<{ tab: string; user: any }> = ({
                         </Link>
                         <Link
                             to="/"
-                            className="text-lg font-bold hover:opacity-75 lg:hidden px-4"
+                            className="text-primary font-bold hover:opacity-75 lg:hidden px-4 h-full"
                         >
-                            Logo
+                            <img
+                                src="/logo.svg"
+                                alt="Logo"
+                                className="object-cover w-6"
+                            />
                         </Link>
 
                         <label className="input input-info flex items-center gap-2 h-10">
@@ -98,7 +102,7 @@ const Header: React.FC<{ tab: string; user: any }> = ({
                                 to={`${ROUTES.DASHBOARD_ROUTE}?tab=my-quiz`}
                                 className={`flex gap-2 items-center justify-center px-4 pb-5 -mb-5 cursor-pointer hover:opacity-75 hover:text-primary ${tab == 'my-quiz' && 'text-primary border-b-2 border-primary'}`}
                             >
-                                <FontAwesomeIcon icon={faUsersRectangle} />
+                                <FontAwesomeIcon icon={faQ} />
                                 <span className="hidden lg:block">My quiz</span>
                             </Link>
                         </div>
@@ -133,7 +137,7 @@ const Header: React.FC<{ tab: string; user: any }> = ({
                                 </svg>
                             </label>
                             <div
-                                className={`absolute top-full right-0 z-1 rounded-lg bg-base-100 w-48 shadow-md flex flex-col gap-2 p-4 transition-all origin-top-right duration-500 ease-in-out ${
+                                className={`absolute top-full right-0 z-1 rounded-lg text-base-content bg-base-100 w-48 shadow-md flex flex-col gap-2 p-4 transition-all origin-top-right duration-500 ease-in-out ${
                                     isMenuOpen
                                         ? 'opacity-100 scale-100 h-fit'
                                         : 'opacity-0 scale-50 pointer-events-none'
@@ -165,7 +169,7 @@ const Header: React.FC<{ tab: string; user: any }> = ({
                 </div>
             </div>
             <div className="md:hidden fixed z-20 bottom-12 w-full">
-                <div className="mx-4 flex space-x-2 justify-around items-center rounded-full bg-base-100 shadow-lg h-16">
+                <div className="mx-4 flex space-x-2 justify-around items-center rounded-full text-base-content bg-base-100 shadow-lg h-16">
                     <Link
                         to={`${ROUTES.DASHBOARD_ROUTE}?tab=home`}
                         className="flex flex-col"

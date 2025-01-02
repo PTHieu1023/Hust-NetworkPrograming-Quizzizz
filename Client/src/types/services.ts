@@ -19,15 +19,14 @@ export type quiz = {
 }
 
 export type quizRoom = {
-    id: number
+    id?: number
+    host?: Omit<user, 'username'>
     name: string
-    testId: string
     code?: string
+    testId: string
     isPractice?: boolean
     isPrivate?: boolean
-    host?: user
-    players?: user[]
-    startedAt?: number
+    openedAt?: number
     closedAt?: number
-    timeRemaining?: number
+    players?: number[]
 }

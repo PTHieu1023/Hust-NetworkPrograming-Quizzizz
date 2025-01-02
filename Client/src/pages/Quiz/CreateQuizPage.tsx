@@ -5,6 +5,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 import MultiSelect from '~/components/common/MultiSelect'
 import quizService from '~/services/quiz'
 import { question, quiz } from '~/types/services'
@@ -17,6 +18,7 @@ const CreateQuizPage: React.FC = () => {
         formState: { errors }
     } = useForm<Omit<quiz, 'id'>>()
     const [loading, setLoading] = useState(false)
+    const navigate = useNavigate()
 
     const [questions, setQuestions] = useState<question[]>([
         {
@@ -70,6 +72,8 @@ const CreateQuizPage: React.FC = () => {
         try {
             const response = await quizService.createQuiz(quiz)
             console.log(response)
+            notify('Quiz created successfully', 'success')
+            // TODO: Redirect to the quiz page
         } catch (error: any) {
             notify(error, 'error')
         } finally {

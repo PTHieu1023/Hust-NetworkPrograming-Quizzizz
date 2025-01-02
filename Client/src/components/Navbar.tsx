@@ -16,7 +16,7 @@ const Navbar: React.FC = () => {
     }
 
     return (
-        <div className="fixed top-0 z-10 w-full flex flex-col shadow-md bg-base-100">
+        <div className="fixed top-0 z-10 w-full flex flex-col shadow-md text-base-content bg-base-100">
             <div className="navbar justify-between w-full">
                 <div>
                     <Link
@@ -92,7 +92,7 @@ const Navbar: React.FC = () => {
             </div>
 
             <div
-                className={`absolute top-full left-0 z-1 w-full h-fit min-h-40 bg-base-100 shadow-md flex flex-col justify-between p-4 lg:hidden transition-all duration-300 ease-in-out ${
+                className={`absolute top-full left-0 z-1 w-full h-fit min-h-40 text-base-content bg-base-100 shadow-md flex flex-col justify-between p-4 lg:hidden transition-all duration-300 ease-in-out ${
                     isMenuOpen
                         ? 'opacity-100 translate-y-0'
                         : 'opacity-0 -translate-y-5 pointer-events-none'
