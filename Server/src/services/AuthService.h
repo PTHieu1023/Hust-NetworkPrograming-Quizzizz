@@ -17,6 +17,7 @@ namespace service::auth {
     void updatePassword(const std::string& sessionId, const std::string& oldPassword, const std::string& newPassword);
     int verifySession(const std::string& sessionId);
 
+
     inline std::unique_ptr<model::auth::UserSession> login(const std::string& username, const std::string& password) {
         try {
             pqxx::work txn(*fcp::DB::getInstance()->getConnection());
