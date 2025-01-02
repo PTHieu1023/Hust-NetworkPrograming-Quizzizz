@@ -163,3 +163,87 @@ void service::question::deleteQuestion(int questionId) {
         throw std::runtime_error("Unexpected error: " + std::string(e.what()));
     }
 }
+
+nlohmann::json service::question::getRoomQuestion(int userId, int roomId, int page) {
+    try{
+        pqxx::work txn(*fcp::DB::getInstance()->getConnection());
+        const std::string query =
+            "SELECT r.room_id, qt.question_id, qt.content, "
+            "CASE WHEN COUNT(qa.id) = 0 "
+            "THEN null ELSE json_agg(json_build_object('answerId', qa.id, 'content', qa.content)) "
+            "END AS answers "
+            "FROM room r join room_participant rp on r.room_id = rp.room_id "
+            "LEFT JOIN quizquestion q ON q.quiz_id = r.quiz_id "
+            "LEFT JOIN question qt ON qt.question_id = q.question_id "
+            "LEFT join question_answer qa ON qa.question_id = qt.question_id "
+            "WHERE r.room_id = $1 and rp.participant_id = $2 GROUP by r.room_id, qt.question_id order by qt.question_id offset $3 limit 6";
+        const pqxx::result result = txn.exec_params(query, roomId, userId, --page * 6);
+
+        auto questions = nlohmann::json::array();
+        for (const auto &row : result) {
+            questions.push_back({
+                {"roomId", row["room_id"].as<int>()},
+                {"questionId", row["question_id"].as<int>(),},
+                {"content", row["content"].as<std::string>(),},
+                {"answers", row["answers"].is_null() ? nlohmann::json::array() : nlohmann::json::parse(row["answers"].as<std::string>())},
+            });
+        }
+        return questions;
+    } catch (const pqxx::sql_error &e){
+        throw std::runtime_error("Database error: " + std::string(e.what()));
+    } catch (const std::exception &e){
+        throw std::runtime_error("Unexpected error: " + std::string(e.what()));
+    }
+}
+
+void service::question::answerQuestion(int userId, int roomId, int answerId) {
+        try{
+            pqxx::work txn(*fcp::DB::getInstance()->getConnection());
+            pqxx::result result = txn.exec_params(
+                "SELECT room_participant_id from room_participant where room_id = $1 and participant_id = $2",
+                roomId, userId
+                );
+            if (result.empty()) {
+                result =txn.exec_params(
+                    "INSERT INTO room_participant(room_id,participant_id) VALUES ($1, $2) RETURNING room_participant_id;",
+                    roomId, userId);
+            }
+
+            if (result.empty()) {
+                throw std::runtime_error("Failed to answer question.");
+            }
+            int participantId = result[0]["room_participant_id"].as<int>();
+
+            result = txn.exec_params(
+            "select qa.question_id from room r "
+                "left join quizquestion qq ON qq.quiz_id = r.quiz_id "
+                "left join question_answer qa on qa.question_id = qq.question_id "
+                "where r.room_id = $1 and qa.id =$2",
+                roomId, answerId);
+            if (result.empty()) {
+                throw std::runtime_error("Failed to answer question.");
+            }
+            int questionId = result[0]["question_id"].as<int>();
+            // Create new question
+            result = txn.exec_params(
+                "UPDATE  participant_answer set answer_id = $1 WHERE room_participant_id = $2 AND question_quiz_id = $3;",
+                answerId, participantId, questionId);
+
+            if (result.affected_rows() > 0) {
+                txn.commit();
+                return;
+            }
+            result = txn.exec_params(
+            "INSERT INTO  participant_answer(room_participant_id, question_quiz_id, answer_id) values ($1, $2, $3);",
+                            participantId, questionId, answerId);
+            txn.commit();
+        }
+        catch (const pqxx::sql_error &e)
+        {
+            throw std::runtime_error("Database error: " + std::string(e.what()));
+        }
+        catch (const std::exception &e)
+        {
+            throw std::runtime_error("Unexpected error: " + std::string(e.what()));
+        }
+}

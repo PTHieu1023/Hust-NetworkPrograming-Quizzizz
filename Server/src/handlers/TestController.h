@@ -92,7 +92,7 @@ namespace controller::quiz {
             const std::string name = ctx->getProps("name");
             const std::string code = ctx->getProps("code");
             const int testId = ctx->getProps("quizId");
-            const std::string createdAt = ctx->getProps("createdAt");
+            const std::string createdAt = ctx->getProps("openedAt");
             const std::string closedAt = ctx->getProps("closedAt");
 
             const auto room = service::quiz::updateRoom(sessionId, roomId, name, code,

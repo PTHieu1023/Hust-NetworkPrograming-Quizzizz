@@ -22,6 +22,7 @@ int main()
     server.use(0x0010, controller::question::getOneQuestion);
 
     server.use(0x0004, controller::quiz::createQuiz);
+    server.use(0x0005, controller::question::getQuizQuestion);
     server.use(0x0006, controller::quiz::getQuizzes);
     server.use(0x0007, controller::quiz::createRoom);
     server.use(0x0008, controller::quiz::getRooms);
@@ -30,6 +31,8 @@ int main()
     server.use(0x000B, controller::quiz::joinRoom);
     server.use(0x0011, controller::quiz::getRoomResult);
     server.use(0x0012, controller::quiz::getHistoryResult);
+
+    server.use(0x0013, controller::question::answerQuestion);
 
     // Run TCP server
     server.start();
