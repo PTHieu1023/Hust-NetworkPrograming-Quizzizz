@@ -12,7 +12,7 @@ namespace controller::quiz {
             const std::vector<int> questions = ctx->getProps("questions");
 
             const int userId = service::auth::verifySession(sessionId);
-            const auto quiz = service::test::createTest(userId, title, questions);
+            const auto quiz = service::quiz::createQuiz(userId, title, questions);
             ctx->writeClient(quiz->toJson().dump().c_str());
         } catch (std::exception& e) {
             nlohmann::json response;
@@ -28,7 +28,7 @@ namespace controller::quiz {
             const int page = ctx->getProps("page");
 
 
-            const auto tests = service::test::getQuizzes(userId, page);
+            const auto tests = service::quiz::getQuizzes(userId, page);
             nlohmann::json testsJson = nlohmann::json::array();
             for (const auto& test : tests) {
                 testsJson.push_back(test->toJson());
@@ -46,36 +46,30 @@ namespace controller::quiz {
             const std::string sessionId = ctx->getProps("sessionId");
             const std::string name = ctx->getProps("name");
             const std::string code = ctx->getProps("code");
-            const int testId = ctx->getProps("testId");
-            const bool isPractice = ctx->getProps("isPractice");
-            const bool isPrivate = ctx->getProps("isPrivate");
-            const std::string createdAt = ctx->getProps("createdAt");
+            const int testId = ctx->getProps("quizId");
+            const std::string createdAt = ctx->getProps("openedAt");
             const std::string closedAt = ctx->getProps("closedAt");
 
-            const auto room = service::test::createRoom(sessionId, name, code, testId,
-                                                    isPractice, isPrivate, createdAt, closedAt);
+            const auto room = service::quiz::createRoom(sessionId, name, code, testId, createdAt, closedAt);
             ctx->writeClient(room->toJson().dump());
         } catch (std::exception& e) {
-            ctx->writeClient(model::quiz::Response::fail(e.what()).dump());
+            ctx->writeClient(nlohmann::json({{"err", e.what()}}).dump().c_str());
         }
     }
 
     inline void getRooms(const fcp::Context* ctx) {
         try {
-            const std::string sessionId = ctx->getProps("sessionId");
-            const int hostId = ctx->getProps("hostId");
-            const std::string name = ctx->getProps("name");
-            const int count = ctx->getProps("count");
+            const std::string name = ctx->getProps("name") == nullptr ? "" : ctx->getProps("name");
             const int page = ctx->getProps("page");
 
-            const auto rooms = service::test::getRooms(sessionId, hostId, name, count, page);
+            const auto rooms = service::quiz::getRooms(name, page);
             nlohmann::json roomsJson = nlohmann::json::array();
             for (const auto& room : rooms) {
-                roomsJson.push_back(room.toJson());
+                roomsJson.push_back(room->toJson());
             }
             ctx->writeClient(roomsJson.dump());
         } catch (std::exception& e) {
-            ctx->writeClient(model::quiz::Response::fail(e.what()).dump());
+            ctx->writeClient(nlohmann::json({{"err", e.what()}}).dump().c_str());
         }
     }
 
@@ -84,10 +78,10 @@ namespace controller::quiz {
             const std::string sessionId = ctx->getProps("sessionId");
             const int roomId = ctx->getProps("roomId");
 
-            service::test::deleteRoom(sessionId, roomId);
+            service::quiz::deleteRoom(sessionId, roomId);
             ctx->writeClient(model::quiz::Response::success(nlohmann::json{{"message", "Room deleted"}}).dump());
         } catch (std::exception& e) {
-            ctx->writeClient(model::quiz::Response::fail(e.what()).dump());
+            ctx->writeClient(nlohmann::json({{"err", e.what()}}).dump().c_str());
         }
     }
 
@@ -97,18 +91,15 @@ namespace controller::quiz {
             const int roomId = ctx->getProps("roomId");
             const std::string name = ctx->getProps("name");
             const std::string code = ctx->getProps("code");
-            const int testId = ctx->getProps("testId");
-            const bool isPractice = ctx->getProps("isPractice");
-            const bool isPrivate = ctx->getProps("isPrivate");
+            const int testId = ctx->getProps("quizId");
             const std::string createdAt = ctx->getProps("createdAt");
             const std::string closedAt = ctx->getProps("closedAt");
 
-            const auto room = service::test::updateRoom(sessionId, roomId, name, code,
-                                                    testId, isPractice, isPrivate,
-                                                    createdAt, closedAt);
+            const auto room = service::quiz::updateRoom(sessionId, roomId, name, code,
+                                                    testId, createdAt, closedAt);
             ctx->writeClient(room->toJson().dump());
         } catch (std::exception& e) {
-            ctx->writeClient(model::quiz::Response::fail(e.what()).dump());
+            ctx->writeClient(nlohmann::json({{"err", e.what()}}).dump().c_str());
         }
     }
 
@@ -117,12 +108,12 @@ namespace controller::quiz {
             const std::string sessionId = ctx->getProps("sessionId");
             const std::string code = ctx->getProps("code");
             
-            const auto room = service::test::joinRoom(sessionId, code);
+            const auto room = service::quiz::joinRoom(sessionId, code);
             auto response = room->toJson();
             response["status"] = "Success";
-            ctx->writeClient(response.dump());
+            ctx->writeClient(response.dump().c_str());
         } catch (std::exception& e) {
-            ctx->writeClient(model::quiz::Response::fail(e.what()).dump());
+            ctx->writeClient(nlohmann::json({{"err", e.what()}}).dump().c_str());
         }
     }
     
@@ -130,30 +121,33 @@ namespace controller::quiz {
         try {
             const std::string sessionId = ctx->getProps("sessionId");
             const int roomId = ctx->getProps("roomId");
+            const int page = ctx->getProps("page") == nullptr ? 1 : ctx->getProps("page").get<int>();
 
-            const auto results = service::test::getRoomResult(sessionId, roomId);
+            const auto results = service::quiz::getRoomResult(sessionId, roomId, page);
             nlohmann::json jsonResults = nlohmann::json::array();
             for (const auto& result : results) {
                 jsonResults.push_back(result.toJson());
             }
-            ctx->writeClient(jsonResults.dump());
+            ctx->writeClient(jsonResults.dump().c_str());
+
         } catch (std::exception& e) {
-            ctx->writeClient(model::quiz::Response::fail(e.what()).dump());
+            ctx->writeClient(nlohmann::json({{"err", e.what()}}).dump().c_str());
         }
     }
 
     inline void getHistoryResult(const fcp::Context* ctx) {
         try {
             const std::string sessionId = ctx->getProps("sessionId");
+            const int page = ctx->getProps("page") == nullptr ? 1 : ctx->getProps("page").get<int>();
 
-            const auto history = service::test::getHistoryResult(sessionId);
+            const auto history = service::quiz::getHistoryResult(sessionId, page);
             nlohmann::json jsonHistory = nlohmann::json::array();
             for (const auto& result : history) {
                 jsonHistory.push_back(result.toJson());
             }
             ctx->writeClient(jsonHistory.dump());
         } catch (std::exception& e) {
-            ctx->writeClient(model::quiz::Response::fail(e.what()).dump());
+            ctx->writeClient(nlohmann::json({{"err", e.what()}}).dump().c_str());
         }
     }
 }

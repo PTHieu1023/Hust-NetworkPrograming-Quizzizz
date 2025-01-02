@@ -12,7 +12,7 @@
 #include "fcp/core/database.h"
 #include "models/Test.h"
 
-namespace service::test {
+namespace service::quiz {
    // Validator helper class
    class Validator {
    public:
@@ -32,25 +32,16 @@ namespace service::test {
            }
        }
 
-       static void validateRoomCode(pqxx::work& txn, const std::string& code) {
-           const pqxx::result exists = txn.exec_params(
-               "SELECT id FROM rooms WHERE code = $1", code
-           );
-           if (!exists.empty()) {
-               throw std::runtime_error("Room code already exists");
-           }
-       }
-
        static void validateTest(pqxx::work& txn, int testId) {
            const pqxx::result test = txn.exec_params(
-               "SELECT id FROM tests WHERE id = $1", testId
+               "SELECT quiz_id FROM quiz WHERE quiz_id = $1", testId
            );
            if (test.empty()) throw std::runtime_error("Test not found");
        }
    };
 
    // CRUD Services
-   std::unique_ptr<model::quiz::Quiz> createTest(int userId,
+   std::unique_ptr<model::quiz::Quiz> createQuiz(int userId,
                                                const std::string& name,
                                                const std::vector<int>& questions) {
        try {
@@ -110,119 +101,76 @@ namespace service::test {
    std::unique_ptr<model::quiz::Room> createRoom(const std::string& sessionId,
                                                const std::string& name,
                                                const std::string& code, 
-                                               int testId, 
-                                               bool isPractice,
-                                               bool isPrivate, 
-                                               const std::string& createdAt,
+                                               int quizId,
+                                               const std::string& openedAt,
                                                const std::string& closedAt) {
-       auto conn = fcp::DB::getInstance()->getConnection();
-       pqxx::work txn(*conn);
        try {
-           Validator::validateDateTime(createdAt, closedAt);
-           Validator::validateRoomCode(txn, code);
-           Validator::validateTest(txn, testId);
-
-           const pqxx::result session_query = txn.exec_params(
-               "SELECT s.user_id, u.username FROM session s "
-               "JOIN users u ON s.user_id = u.user_id "
-               "WHERE s.session_id = $1",
-               sessionId
-           );
-
-           if (session_query.empty()) {
-               throw std::runtime_error("Invalid session");
-           }
-
-           int hostId = session_query[0]["user_id"].as<int>();
-           std::string hostName = session_query[0]["username"].as<std::string>();
-
+           int userId = auth::verifySession(sessionId);
+           pqxx::work txn(*fcp::DB::getInstance()->getConnection());
            const pqxx::result result = txn.exec_params(
-               "INSERT INTO rooms (name, code, test_id, host_id, is_practice, is_private, created_at, closed_at) "
-               "VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id",
-               name, code, testId, hostId, isPractice, isPrivate, createdAt, closedAt
+               "INSERT INTO room (host_id, quiz_id, start_time, end_time, code, name)"
+               "VALUES ($1, $2, $3, $4, $5, $6) RETURNING room_id;",
+               userId, quizId, openedAt, closedAt, code, name
            );
 
            txn.commit();
 
            auto room = std::make_unique<model::quiz::Room>();
-           room->id = result[0]["id"].as<int>();
+           room->id = result[0]["room_id"].as<int>();
            room->name = name;
            room->code = code;
-           room->testId = testId;
-           room->hostId = hostId;
-           room->hostName = hostName;
-           room->isPractice = isPractice;
-           room->isPrivate = isPrivate;
-           room->createdAt = createdAt;
+           room->quizId = quizId;
+           room->hostId = userId;
+           room->createdAt = openedAt;
            room->closedAt = closedAt;
-
            return room;
-       } catch (...) {
-           txn.abort();
-           throw;
+       } catch (const pqxx::sql_error &e){
+           throw std::runtime_error("Database error: " + std::string(e.what()));
+       }catch (const std::exception &e){
+           throw std::runtime_error("Unexpected error: " + std::string(e.what()));
        }
    }
 
-   std::vector<model::quiz::Room> getRooms(const std::string& sessionId, int hostId,
-                                         const std::string& name, int count, int page) {
-       auto conn = fcp::DB::getInstance()->getConnection();
-       pqxx::work txn(*conn);
+   std::vector<std::shared_ptr<model::quiz::Room>> getRooms(const std::string& name, int page) {
        try {
-           // Validator::validateSession(txn, sessionId);
+           pqxx::work txn(*fcp::DB::getInstance()->getConnection());
+           std::string query =
+               "SELECT r.*, u.username AS host_name "
+                "FROM room r LEFT JOIN users u ON u.user_id = r.host_id "
+                "WHERE r.end_time > CURRENT_TIMESTAMP and r.name like '%' || coalesce($1, '') || '%' "
+                "ORDER by r.room_id OFFSET $2 LIMIT 6";
 
-           std::string query = 
-               "SELECT r.id, r.name, r.code, r.test_id, "
-               "r.host_id, u.username as host_name, "
-               "r.is_practice, r.is_private, r.created_at, r.closed_at "
-               "FROM rooms r "
-               "JOIN users u ON r.host_id = u.user_id "
-               "WHERE r.closed_at > NOW() ";
-
-           if (hostId > 0) {
-               query += "AND r.host_id = " + std::to_string(hostId) + " ";
-           }
-           if (!name.empty()) {
-               query += "AND r.name ILIKE '%" + name + "%' ";
-           }
-
-           query += "ORDER BY r.created_at DESC "
-                   "LIMIT " + std::to_string(count) + " "
-                   "OFFSET " + std::to_string((page - 1) * count);
-
-           const pqxx::result result = txn.exec(query);
-           std::vector<model::quiz::Room> rooms;
+           const pqxx::result result = txn.exec_params(query, name, --page *6);
+           std::vector<std::shared_ptr<model::quiz::Room>> rooms;
 
            for (const auto& row : result) {
-               model::quiz::Room room;
-               room.id = row["id"].as<int>();
-               room.name = row["name"].as<std::string>();
-               room.code = row["code"].as<std::string>();
-               room.testId = row["test_id"].as<int>();
-               room.hostId = row["host_id"].as<int>();
-               room.hostName = row["host_name"].as<std::string>();
-               room.isPractice = row["is_practice"].as<bool>();
-               room.isPrivate = row["is_private"].as<bool>();
-               room.createdAt = row["created_at"].as<std::string>();
-               room.closedAt = row["closed_at"].as<std::string>();
+               auto room = std::make_shared<model::quiz::Room>();
+               room->id = row["room_id"].as<int>();
+               room->name = row["name"].as<std::string>();
+               room->code = row["code"].as<std::string>();
+               room->quizId = row["quiz_id"].as<int>();
+               room->hostId = row["host_id"].as<int>();
+               room->hostName = row["host_name"].as<std::string>();
+               room->createdAt = row["start_time"].as<std::string>();
+               room->closedAt = row["end_time"].as<std::string>();
                rooms.push_back(room);
            }
 
-           txn.commit();
            return rooms;
-       } catch (...) {
-           txn.abort();
-           throw;
+       }catch (const pqxx::sql_error &e){
+           throw std::runtime_error("Database error: " + std::string(e.what()));
+       }catch (const std::exception &e){
+           throw std::runtime_error("Unexpected error: " + std::string(e.what()));
        }
    }
 
    void deleteRoom(const std::string& sessionId, int roomId) {
-       auto conn = fcp::DB::getInstance()->getConnection();
-       pqxx::work txn(*conn);
        try {
+           pqxx::work txn(*fcp::DB::getInstance()->getConnection());
            const pqxx::result auth_query = txn.exec_params(
-               "SELECT r.id FROM rooms r "
+               "SELECT r.room_id FROM room r "
                "JOIN session s ON r.host_id = s.user_id "
-               "WHERE s.session_id = $1 AND r.id = $2",
+               "WHERE s.session_id = $1 AND r.room_id = $2",
                sessionId, roomId
            );
 
@@ -230,11 +178,12 @@ namespace service::test {
                throw std::runtime_error("Unauthorized to delete room");
            }
 
-           txn.exec_params("DELETE FROM rooms WHERE id = $1", roomId);
+           txn.exec_params("DELETE FROM room WHERE room_id = $1", roomId);
            txn.commit();
-       } catch (...) {
-           txn.abort();
-           throw;
+       } catch (const pqxx::sql_error &e){
+           throw std::runtime_error("Database error: " + std::string(e.what()));
+       }catch (const std::exception &e){
+           throw std::runtime_error("Unexpected error: " + std::string(e.what()));
        }
    }
 
@@ -242,23 +191,18 @@ namespace service::test {
                                                int roomId,
                                                const std::string& name, 
                                                const std::string& code,
-                                               int testId, 
-                                               bool isPractice, 
-                                               bool isPrivate,
+                                               int testId,
                                                const std::string& createdAt, 
                                                const std::string& closedAt) {
-       auto conn = fcp::DB::getInstance()->getConnection();
-       pqxx::work txn(*conn);
        try {
-           Validator::validateDateTime(createdAt, closedAt);
-           Validator::validateTest(txn, testId);
+           pqxx::work txn(*fcp::DB::getInstance()->getConnection());
 
            const pqxx::result auth_query = txn.exec_params(
-               "SELECT r.id, r.code, u.user_id, u.username "
-               "FROM rooms r "
+               "SELECT r.room_id, r.code, u.user_id, u.username "
+               "FROM room r "
                "JOIN session s ON r.host_id = s.user_id "
                "JOIN users u ON s.user_id = u.user_id "
-               "WHERE s.session_id = $1 AND r.id = $2",
+               "WHERE s.session_id = $1 AND r.room_id = $2",
                sessionId, roomId
            );
 
@@ -266,15 +210,10 @@ namespace service::test {
                throw std::runtime_error("Unauthorized to update room");
            }
 
-           if (code != auth_query[0]["code"].as<std::string>()) {
-               Validator::validateRoomCode(txn, code);
-           }
-
            txn.exec_params(
-               "UPDATE rooms SET name = $1, code = $2, test_id = $3, "
-               "is_practice = $4, is_private = $5, created_at = $6, closed_at = $7 "
-               "WHERE id = $8",
-               name, code, testId, isPractice, isPrivate, createdAt, closedAt, roomId
+               "UPDATE room SET name = $1, code = $2, quiz_id = $3, start_time = $4, end_time = $5 "
+               "WHERE room_id = $6",
+               name, code, testId, createdAt, closedAt, roomId
            );
 
            txn.commit();
@@ -283,36 +222,30 @@ namespace service::test {
            room->id = roomId;
            room->name = name;
            room->code = code;
-           room->testId = testId;
+           room->quizId = testId;
            room->hostId = auth_query[0]["user_id"].as<int>();
-           room->hostName = auth_query[0]["username"].as<std::string>();
-           room->isPractice = isPractice;
-           room->isPrivate = isPrivate;
            room->createdAt = createdAt;
            room->closedAt = closedAt;
 
            return room;
-       } catch (...) {
-           txn.abort();
-           throw;
+       } catch (const pqxx::sql_error &e){
+           throw std::runtime_error("Database error: " + std::string(e.what()));
+       }catch (const std::exception &e){
+           throw std::runtime_error("Unexpected error: " + std::string(e.what()));
        }
    }
 
    std::unique_ptr<model::quiz::Room> joinRoom(const std::string& sessionId,
                                              const std::string& code) {
-       auto conn = fcp::DB::getInstance()->getConnection();
-       pqxx::work txn(*conn);
        try {
            int userId = auth::verifySession(sessionId);
 
+           pqxx::work txn(*fcp::DB::getInstance()->getConnection());
+
            const pqxx::result room_query = txn.exec_params(
-               "SELECT r.id, r.name, r.code, r.test_id, "
-               "r.host_id, u.username as host_name, "
-               "r.is_practice, r.is_private, "
-               "r.created_at, r.closed_at "
-               "FROM rooms r "
-               "JOIN users u ON r.host_id = u.user_id "
-               "WHERE r.code = $1 AND r.closed_at > NOW()",
+               "SELECT r.*, u.username as host_name "
+               "FROM room r JOIN users u ON r.host_id = u.user_id "
+               "WHERE r.code = $1",
                code
            );
 
@@ -322,51 +255,50 @@ namespace service::test {
 
            int participantId;
            const pqxx::result existing = txn.exec_params(
-               "SELECT id FROM room_participants WHERE room_id = $1 AND user_id = $2",
-               room_query[0]["id"].as<int>(), userId
+               "SELECT room_participant_id FROM room_participant WHERE room_id = $1 AND participant_id = $2",
+               room_query[0]["room_id"].as<int>(), userId
            );
 
            if (existing.empty()) {
                const pqxx::result part_result = txn.exec_params(
-                   "INSERT INTO room_participants (room_id, user_id) VALUES ($1, $2) RETURNING id",
-                   room_query[0]["id"].as<int>(), userId
+                   "INSERT INTO room_participant (room_id, participant_id) VALUES ($1, $2) RETURNING room_participant_id",
+                   room_query[0]["room_id"].as<int>(), userId
                );
-               participantId = part_result[0]["id"].as<int>();
+               participantId = part_result[0]["room_participant_id"].as<int>();
            } else {
-               participantId = existing[0]["id"].as<int>();
+               participantId = existing[0]["room_participant_id"].as<int>();
            }
 
            txn.commit();
 
            auto room = std::make_unique<model::quiz::Room>();
-           room->id = room_query[0]["id"].as<int>();
+           room->id = room_query[0]["room_id"].as<int>();
            room->name = room_query[0]["name"].as<std::string>();
            room->code = room_query[0]["code"].as<std::string>();
-           room->testId = room_query[0]["test_id"].as<int>();
+           room->quizId = room_query[0]["quiz_id"].as<int>();
            room->hostId = room_query[0]["host_id"].as<int>();
            room->hostName = room_query[0]["host_name"].as<std::string>();
-           room->isPractice = room_query[0]["is_practice"].as<bool>();
-           room->isPrivate = room_query[0]["is_private"].as<bool>();
-           room->createdAt = room_query[0]["created_at"].as<std::string>();
-           room->closedAt = room_query[0]["closed_at"].as<std::string>();
+           room->createdAt = room_query[0]["start_time"].as<std::string>();
+           room->closedAt = room_query[0]["end_time"].as<std::string>();
            room->participantId = participantId;
 
            return room;
-       } catch (...) {
-           txn.abort();
-           throw;
+       } catch (const pqxx::sql_error &e){
+           throw std::runtime_error("Database error: " + std::string(e.what()));
+       }catch (const std::exception &e){
+           throw std::runtime_error("Unexpected error: " + std::string(e.what()));
        }
    }
-   std::vector<model::quiz::RoomResult> getRoomResult(const std::string& sessionId, int roomId) {
-        auto conn = fcp::DB::getInstance()->getConnection();
-        pqxx::work txn(*conn);
+
+    std::vector<model::quiz::RoomResult> getRoomResult(const std::string& sessionId, int roomId, int page) {
         try {
+            pqxx::work txn(*fcp::DB::getInstance()->getConnection());
             // Validate session and room access
             const pqxx::result auth_query = txn.exec_params(
-                "SELECT r.id FROM rooms r "
-                "JOIN room_participants rp ON r.id = rp.room_id "
-                "JOIN session s ON rp.user_id = s.user_id "
-                "WHERE s.session_id = $1 AND r.id = $2",
+                "SELECT r.room_id FROM room r "
+                "JOIN room_participant rp ON r.room_id = rp.room_id "
+                "JOIN session s ON rp.participant_id = s.user_id "
+                "WHERE s.session_id = $1 AND r.room_id = $2",
                 sessionId, roomId
             );
 
@@ -376,61 +308,62 @@ namespace service::test {
 
             // Get results for all participants
             const pqxx::result result = txn.exec_params(
-                "SELECT u.username, u.name, rp.result "
-                "FROM room_participants rp "
-                "JOIN users u ON rp.user_id = u.user_id "
-                "WHERE rp.room_id = $1 "
-                "ORDER BY rp.result DESC",
-                roomId
+                "select r.room_id, u.username, count(*) as result "
+                "from room r left join room_participant rp on r.room_id = rp.room_id "
+                "left join users u on u.user_id = rp.participant_id "
+                "left join participant_answser pa on pa.room_participant_id = rp.room_participant_id "
+                "left join question_answer qa on qa.id = pa.answer_id "
+                "where r.room_id = $1 and qa.is_true = true "
+                "group by r.room_id , u.username offset $2 limit 6",
+                roomId, --page * 6
             );
 
             std::vector<model::quiz::RoomResult> results;
             for (const auto& row : result) {
                 model::quiz::RoomResult res;
                 res.username = row["username"].as<std::string>();
-                res.name = row["name"].as<std::string>();
-                res.result = row["result"].is_null() ? 0.0 : row["result"].as<double>();
+                res.result = row["result"].is_null() ? 0 : row["result"].as<int>();
                 results.push_back(res);
             }
 
             txn.commit();
             return results;
-        } catch (...) {
-            txn.abort();
-            throw;
+        } catch (const pqxx::sql_error &e){
+            throw std::runtime_error("Database error: " + std::string(e.what()));
+        }catch (const std::exception &e){
+            throw std::runtime_error("Unexpected error: " + std::string(e.what()));
         }
     }
 
-    std::vector<model::quiz::HistoryResult> getHistoryResult(const std::string& sessionId) {
-        auto conn = fcp::DB::getInstance()->getConnection();
-        pqxx::work txn(*conn);
+    std::vector<model::quiz::HistoryResult> getHistoryResult(const std::string& sessionId,int page) {
         try {
             int userId = auth::verifySession(sessionId);
+            pqxx::work txn(*fcp::DB::getInstance()->getConnection());
             const pqxx::result result = txn.exec_params(
-                "SELECT r.id as room_id, r.name as room_name, "
-                "rp.result, rp.completed_at "
-                "FROM room_participants rp "
-                "JOIN rooms r ON rp.room_id = r.id "
-                "WHERE rp.user_id = $1 AND rp.completed_at IS NOT NULL "
-                "ORDER BY rp.completed_at DESC",
-                userId
+            "select r.room_id , r.name, count(*) as result "
+            "from users u join room_participant rp ON u.user_id = rp.participant_id "
+            "join room r on r.room_id  = rp.room_id "
+            "join participant_answser pa on pa.room_participant_id = rp.room_participant_id "
+            "join question_answer qa ON qa.id = pa.answer_id "
+            "where qa.is_true = true and u.user_id = $1 and r.end_time < CURRENT_TIMESTAMP "
+            "group by r.room_id , r.name offset $2 limit 6",
+                userId, --page * 6
             );
 
             std::vector<model::quiz::HistoryResult> history;
             for (const auto& row : result) {
                 model::quiz::HistoryResult res;
                 res.roomId = row["room_id"].as<int>();
-                res.roomName = row["room_name"].as<std::string>();
-                res.result = row["result"].is_null() ? 0.0 : row["result"].as<double>();
-                res.completedAt = row["completed_at"].as<std::string>();
+                res.roomName = row["name"].as<std::string>();
+                res.result = row["result"].is_null() ? 0 : row["result"].as<int>();
                 history.push_back(res);
             }
 
-            txn.commit();
             return history;
-        } catch (...) {
-            txn.abort();
-            throw;
+        } catch (const pqxx::sql_error &e){
+            throw std::runtime_error("Database error: " + std::string(e.what()));
+        }catch (const std::exception &e){
+            throw std::runtime_error("Unexpected error: " + std::string(e.what()));
         }
     }
 }

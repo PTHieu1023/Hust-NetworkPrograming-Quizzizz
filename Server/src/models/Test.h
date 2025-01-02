@@ -49,9 +49,7 @@ namespace model::quiz {
         int id;
         std::string name;
         std::string code;
-        int testId;
-        bool isPractice;
-        bool isPrivate;
+        int quizId;
         std::string createdAt;
         std::string closedAt;
         int hostId;
@@ -61,16 +59,16 @@ namespace model::quiz {
         nlohmann::json toJson() const {
             nlohmann::json json;
             json["hostId"] = hostId;
-            json["hostName"] = hostName;
             json["name"] = name;
             json["code"] = code;
-            json["testId"] = testId;
-            json["isPractice"] = isPractice;
-            json["isPrivate"] = isPrivate;
+            json["testId"] = quizId;
             json["createdAt"] = createdAt;
             json["closedAt"] = closedAt;
+            if (!hostName.empty()) {
+                json["hostName"] = hostName;
+            }
             if(participantId > 0) {
-                json["participant_id"] = participantId;
+                json["participantId"] = participantId;
             }
             return json;
         }
@@ -78,13 +76,11 @@ namespace model::quiz {
     class RoomResult {
     public:
         std::string username;
-        std::string name;
-        double result;
+        int result;
 
         nlohmann::json toJson() const {
             nlohmann::json json;
             json["username"] = username;
-            json["name"] = name;
             json["result"] = result;
             return json;
         }
@@ -94,15 +90,13 @@ namespace model::quiz {
     public:
         int roomId; 
         std::string roomName;
-        double result;
-        std::string completedAt;
+        int result;
 
         nlohmann::json toJson() const {
             nlohmann::json json;
             json["roomId"] = roomId;
             json["roomName"] = roomName;
             json["result"] = result;
-            json["completedAt"] = completedAt;
             return json;
         }
     };
