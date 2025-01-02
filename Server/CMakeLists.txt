@@ -1,34 +1,31 @@
 cmake_minimum_required(VERSION 3.20)
 project(Server)
 
-# Set the C++ standard
 set(CMAKE_CXX_STANDARD 17)
-
-# Include all headers from the src/ directory
 include_directories(src/)
 
-# Find the pqxx library using pkg-config
+# Find required packages
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(PQXX REQUIRED libpqxx)
-
-# Find OpenSSL
 find_package(OpenSSL REQUIRED)
 
-# Find all .cpp files in the src/ directory (recursive)
+# Find all source files
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 
-# Add subdirectory for the nlohmann_json library
+# Add json library
 add_subdirectory(external/json)
 
-# Add the executable and specify all .cpp files
-add_executable(HttpServerTemplate ${SOURCES})
+# Add executable
+add_executable(Server ${SOURCES})
 
-# Link the nlohmann_json header-only library
-target_include_directories(HttpServerTemplate PRIVATE external/json/include)
+# Link libraries
+target_include_directories(Server 
+    PRIVATE external/json/include 
+    PRIVATE ${PQXX_INCLUDE_DIRS}
+)
 
-# Include and link pqxx
-target_include_directories(HttpServerTemplate PRIVATE ${PQXX_INCLUDE_DIRS})
-target_link_libraries(HttpServerTemplate PRIVATE ${PQXX_LIBRARIES})
-
-# Link OpenSSL libraries (fixes missing libcrypto error)
-target_link_libraries(HttpServerTemplate PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+target_link_libraries(Server 
+    PRIVATE ${PQXX_LIBRARIES}
+    PRIVATE OpenSSL::SSL 
+    PRIVATE OpenSSL::Crypto
+)
