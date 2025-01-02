@@ -21,6 +21,10 @@ class UserService {
     private readonly tokenKey = AUTH_TOKEN
 
     private ws = WebSocketService.getInstance()
+    private id = 0
+
+    getId = () => this.id
+    setId = (id: number) => (this.id = id)
 
     // Login a user
     login(credentials: LoginCredentials) {
@@ -30,6 +34,7 @@ class UserService {
                 // console.log(data)
                 if (data?.sessionId) {
                     this.saveToken(data.sessionId)
+                    this.setId(data.userId as number)
                     resolve(data)
                 }
                 rejects(data)

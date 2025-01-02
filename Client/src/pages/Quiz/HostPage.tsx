@@ -6,7 +6,7 @@ import Countdown from '~/components/common/CountDown'
 const HostPage: React.FC = () => {
     const { code } = useParams()
     const room = useLocation().state
-    const countdown = Math.floor((room.startedAt - Date.now()) / 1000)
+    const countdown = Math.floor((room.openedAt - Date.now()) / 1000)
 
     return (
         <div className="max-w-5xl w-full p-4">
@@ -24,7 +24,7 @@ const HostPage: React.FC = () => {
                     <p className="text-lg w-full">Number of players joined:</p>
                     <div className="flex justify-center items-center gap-4 p-2 bg-primary rounded-md text-primary-content">
                         <FontAwesomeIcon icon={faUsers} />
-                        <span>{room.players?.length ?? 0}</span>
+                        <span>{room?.players?.length ?? 0}</span>
                     </div>
                 </div>
                 <p className="text-lg">
@@ -32,9 +32,6 @@ const HostPage: React.FC = () => {
                 </p>
                 <div className="flex items-center justify-center mt-4">
                     <div className="text-6xl font-bold">{code}</div>
-                </div>
-                <div className="flex justify-center items-center w-full mx-auto my-8">
-                    <button className="btn btn-success w-40">Start</button>
                 </div>
             </div>
         </div>

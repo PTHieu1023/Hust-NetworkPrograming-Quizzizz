@@ -14,41 +14,30 @@ const Home: React.FC = () => {
     const user = useAppSelector((state) => state.auth.user)
     const navigate = useNavigate()
 
-    const [quizzes, setQuizzes] = useState<quiz[]>([
-        {
-            id: 1,
-            name: 'General Knowledge'
-        },
-        {
-            id: 2,
-            name: 'Science'
-        },
-        {
-            id: 3,
-            name: 'Mathematics'
-        },
-        {
-            id: 4,
-            name: 'History'
-        },
-        {
-            id: 5,
-            name: 'Geography'
-        },
-        {
-            id: 6,
-            name: 'Computer Science'
-        }
-    ])
+    const [quizzes, setQuizzes] = useState<quiz[]>([])
+    const [totalPages, setTotalPages] = useState(0)
+    const [loading, setLoading] = useState(false)
 
-    const fetchQuizzes = async (name = '', count = 20, page = 1) => {
+    const fetchQuizzes = async () => {
         try {
-            // Fetch quizzes from the server
-            const response = await quizService.getQuizzes({ name, count, page })
-            setQuizzes(response as quiz[])
+            setLoading(true)
+            const response = await quizService.getQuizzes(totalPages + 1)
+            if (response?.length) {
+                // filter all quizzes that are includes in the response
+                const filteredQuizzes = quizzes.filter(
+                    (quiz) =>
+                        !response.some((res) => res.quizId === quiz.quizId)
+                )
+                // add the new quizzes to the existing quizzes
+                setQuizzes([...filteredQuizzes, ...response])
+                setTotalPages(totalPages + 1)
+                setLoading(false)
+            }
         } catch (error: any) {
             console.error(error)
-            notify('Failed to fetch quizzes', 'error')
+            notify('Fail to load quizzes', 'error')
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -56,9 +45,13 @@ const Home: React.FC = () => {
         fetchQuizzes()
     }, [])
 
+    const handleLoadMore = async () => {
+        await fetchQuizzes()
+    }
+
     const [showModal, setShowModal] = useState(false)
     const [chosenQuiz, setChosenQuiz] = useState<quiz>({
-        id: 0,
+        quizId: 0,
         name: ''
     })
 
@@ -101,16 +94,20 @@ const Home: React.FC = () => {
                             />
                             Category
                         </div>
-                        <Link to={'/'} className="btn btn-outline">
-                            See more
-                        </Link>
+                        <button
+                            onClick={handleLoadMore}
+                            disabled={loading}
+                            className="btn btn-outline"
+                        >
+                            {loading ? 'Loading...' : 'See More'}
+                        </button>
                     </div>
                     <div className="flex flex-wrap justify-around items-center">
-                        {quizzes.map((quiz) => {
+                        {quizzes.map((quiz, index) => {
                             if (quiz.isPrivate) return null
                             return (
                                 <div
-                                    key={quiz.id}
+                                    key={quiz.quizId ?? index}
                                     className="lg:w-1/6 md:w-1/3 w-1/2 p-2"
                                 >
                                     <button

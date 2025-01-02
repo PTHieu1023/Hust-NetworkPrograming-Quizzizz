@@ -1,32 +1,32 @@
 export type user = {
-    id: number
+    userId?: number
     username: string
     name: string
     role?: string
 }
 
 export type question = {
-    id: number
-    question: string
-    options?: string[]
+    questionId?: number
+    content: string
+    answers?: { content: string; isTrue: boolean }[]
 }
 
 export type quiz = {
-    id: number
+    quizId?: number
     name: string
-    questions?: question[]
+    questions?: number[]
     isPrivate?: boolean
 }
 
 export type quizRoom = {
-    id?: number
+    roomId?: number
     host?: Omit<user, 'username'>
     name: string
     code?: string
-    testId: string
+    quizId: string
     isPractice?: boolean
     isPrivate?: boolean
-    openedAt?: number
-    closedAt?: number
+    openedAt?: string
+    closedAt?: string
     players?: number[]
 }

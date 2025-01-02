@@ -13,6 +13,8 @@ import NotFoundPage from '~/pages/Error/NotFoundPage'
 import HomePage from '~/pages/HomePage'
 import CreateQuizPage from '~/pages/Quiz/CreateQuizPage'
 import HostPage from '~/pages/Quiz/HostPage'
+import CreateQuestionPage from '~/pages/Quiz/Question/CreateQuestionPage'
+import ListQuestionsPage from '~/pages/Quiz/Question/ListQuestionsPage'
 import SetupPage from '~/pages/Quiz/SetupPage'
 import WaitingPage from '~/pages/Quiz/WaitingPage'
 import { ROUTES } from '~/resources/routes-constants'
@@ -54,10 +56,6 @@ const Routes = () => {
                 {
                     path: ROUTES.PROFILE_ROUTE,
                     element: <ProfilePage />
-                },
-                {
-                    path: `${ROUTES.QUIZ_ROUTE}/create`,
-                    element: <CreateQuizPage />
                 }
             ]
         },
@@ -79,6 +77,18 @@ const Routes = () => {
                 {
                     path: `${ROUTES.QUIZ_ROUTE}/game/:code`,
                     element: <HostPage />
+                },
+                {
+                    path: `${ROUTES.QUIZ_ROUTE}/create`,
+                    element: <CreateQuizPage />
+                },
+                {
+                    path: `${ROUTES.QUESTION_ROUTE}/:mode`,
+                    element: <CreateQuestionPage />
+                },
+                {
+                    path: `${ROUTES.QUESTION_ROUTE}/all-questions`,
+                    element: <ListQuestionsPage />
                 }
             ]
         },

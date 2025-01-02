@@ -23,12 +23,15 @@ const MultiSelect = <T extends Record<string, any>>({
     const optionsElements = document.querySelectorAll(
         '.optionContainer .option'
     )
-    optionsElements.forEach((el, index) => {
-        el.setAttribute('data-tip', options[index][tooltipKey as string])
-        el.classList.add('tooltip')
-        el.classList.add('w-full')
-        el.classList.add('text-start')
-    })
+    if (tooltipKey) {
+        optionsElements.forEach((el, index) => {
+            el.setAttribute('data-tip', options[index][tooltipKey as string])
+            el.classList.add('tooltip')
+            el.classList.add('w-full')
+            el.classList.add('text-start')
+        })
+    }
+
     return (
         <div className={`relative w-full max-w-lg mx-auto ${className}`}>
             <Multiselect

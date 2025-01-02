@@ -18,11 +18,12 @@ class RoomService {
     private ws = WebSocketService.getInstance()
 
     // Create a new room
-    createRoom(data: quizRoom) {
+    createRoom(data: quizRoom): Promise<quizRoom> {
         return new Promise((resolve, rejects) => {
             this.ws.onMessage(this.CREATE_ROOM_OPCODE, (data) => {
                 this.ws.removeMessageHandler(this.CREATE_ROOM_OPCODE)
-                if (data?.status === 'Fail') rejects('Failed to create room')
+                if (!data || data?.err || data?.status === 'Fail')
+                    rejects('Failed to create room')
                 resolve(data)
             })
             this.ws.send(this.CREATE_ROOM_OPCODE, {
@@ -37,7 +38,8 @@ class RoomService {
         return new Promise((resolve, rejects) => {
             this.ws.onMessage(this.GET_ROOMS_OPCODE, (data) => {
                 this.ws.removeMessageHandler(this.GET_ROOMS_OPCODE)
-                if (data?.status === 'Fail') rejects('Failed to get rooms')
+                if (!data || data?.err || data?.status === 'Fail')
+                    rejects('Failed to get rooms')
                 resolve(data)
             })
             this.ws.send(this.GET_ROOMS_OPCODE, {
@@ -52,15 +54,16 @@ class RoomService {
         return new Promise((resolve, rejects) => {
             this.ws.onMessage(this.JOIN_ROOM_OPCODE, (data) => {
                 this.ws.removeMessageHandler(this.JOIN_ROOM_OPCODE)
-                if (data?.status === 'Fail') rejects('Failed to join room')
+                if (!data || data?.err || data?.status === 'Fail')
+                    rejects('Failed to join room')
                 const room: quizRoom = {
                     host: {
-                        id: data?.hostId,
+                        userId: data?.hostId,
                         name: data?.hostName
                     },
                     name: data?.name ?? 'Quiz name',
                     code: data?.code ?? 0,
-                    testId: data?.testId ?? 0,
+                    quizId: data?.quizId ?? 0,
                     isPractice: data?.isPractice ?? false,
                     isPrivate: data?.isPrivate ?? false,
                     openedAt: data?.openedAt ?? 0,
@@ -76,16 +79,17 @@ class RoomService {
     }
 
     // Delete a room
-    deleteRoom(id: string) {
+    deleteRoom(roomId: number) {
         return new Promise((resolve, rejects) => {
             this.ws.onMessage(this.DELETE_ROOM_OPCODE, (data) => {
                 this.ws.removeMessageHandler(this.DELETE_ROOM_OPCODE)
-                if (data?.status === 'Fail') rejects('Failed to delete room')
+                if (!data || data?.err || data?.status === 'Fail')
+                    rejects('Failed to delete room')
                 resolve(data)
             })
             this.ws.send(this.DELETE_ROOM_OPCODE, {
                 sessionId: userService.getToken(),
-                roomId: id
+                roomId
             })
         })
     }

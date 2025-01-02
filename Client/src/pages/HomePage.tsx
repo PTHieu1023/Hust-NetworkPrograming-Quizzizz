@@ -108,7 +108,7 @@ const HomePage: React.FC = () => {
                 </div>
 
                 <AnimateOnScroll animationClass="float-in">
-                    <div className="max-w-5xl text-center text-5xl py-16 font-bold animate-floatIn">
+                    <div className="max-w-5xl text-center text-5xl pt-16 font-bold animate-floatIn">
                         Now we support every part of your lesson. Here’s how it
                         works
                     </div>
