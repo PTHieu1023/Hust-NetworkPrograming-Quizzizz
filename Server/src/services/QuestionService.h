@@ -10,6 +10,7 @@ namespace service::question
     model::question::QuestionPtr getById(int userId, int questionId);
     model::question::QuestionPtr updateQuestion(const model::question::QuestionPtr &question);
     void deleteQuestion(int questionId);
+    nlohmann::json getRoomQuestion(int userId, int roomId, int page);
 }
 
 #endif // QUESTIONSERVICE_H

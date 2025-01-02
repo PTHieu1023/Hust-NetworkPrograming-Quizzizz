@@ -97,11 +97,19 @@ async function main() {
             console.log('Server Response:', JSON.stringify(response));
         },
         'test': async () => {
-            const response = await sendMessage('127.0.0.1', 8080, 15, {
+            payload = {
                 sessionId: '459d5476-f16e-45ac-9287-d821d297eb39',
-                questionId: 2
-            })
-            console.log(response);
+                name: 'Room 1',
+                roomId: 1,
+                page: 1,
+                code: 'kkkk',
+                quizId: 6,
+                createdAt: new Date().toISOString(),
+                closedAt: new Date(new Date().getDate() + 2).toISOString()
+            }
+
+            const response = await sendMessage('127.0.0.1', 8080, 0x0005, payload);
+            console.log(JSON.stringify(response));
         }
     }
 
