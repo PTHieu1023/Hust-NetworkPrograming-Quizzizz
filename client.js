@@ -21,7 +21,6 @@ async function sendMessage(host, port, actionCode, payload) {
         // Handle server response
         client.on('data', (data) => {
             try {
-                console.log(data);
                 const res = JSON.parse(data);
                 client.destroy();
                 resolve(res);
@@ -69,18 +68,47 @@ async function main() {
             currentSession = null;
         },
         'changePassword': async () => {
-            const username = await askQuestion("Enter old password:");
-            const password = await askQuestion("Enter new password:");
-            const response = await sendMessage('127.0.0.1', 8080, 0x0003, { sessionId: currentSession, });
+            const oldPassword = await askQuestion("Enter old password:");
+            const newPassword = await askQuestion("Enter new password:");
+            const confirmPassword = await askQuestion("Enter confirm password:");
+            const response = await sendMessage('127.0.0.1', 8080, 0x0003, { sessionId: currentSession, oldPassword, newPassword, confirmPassword });
             console.log('Server Response:', response);
             currentSession = null;
+        },
+        'createQuestion': async () => {
+            const content = await askQuestion("Enter question content: ");
+            const answers = []
+            for (let i = 0; i < 4; i++) {
+                const ac = await askQuestion(`Enter answer ${i} content: `);
+                const at = await askQuestion(`Enter answer ${i} isTrue: `);
+                answers.push({ content: ac, isTrue: at == 1 ? true : false })
+            }
+            const response = await sendMessage('127.0.0.1', 8080, 0x000c, { sessionId: currentSession, content, answers })
+            console.log('Server Response:', response);
+        },
+        'getQuestions': async () => {
+            const page = await askQuestion("Enter page: ");
+            const response = await sendMessage('127.0.0.1', 8080, 0x000d, { sessionId: currentSession, page: parseInt(page) })
+            console.log('Server Response:', response);
+        },
+        'getQuestion': async () => {
+            const questionId = await askQuestion("Enter questionId");
+            const response = await sendMessage('127.0.0.1', 8080, 0x0010, { sessionId: currentSession, questionId: parseInt(questionId) })
+            console.log('Server Response:', JSON.stringify(response));
+        },
+        'test': async () => {
+            const response = await sendMessage('127.0.0.1', 8080, 15, {
+                sessionId: '459d5476-f16e-45ac-9287-d821d297eb39',
+                questionId: 2
+            })
+            console.log(response);
         }
     }
 
     while (true) {
-        const action = await askQuestion("Choose action");
+        const action = await askQuestion("Choose action: ");
         try {
-            handleAction[action]();
+            await handleAction[action]();
         } catch (error) {
             console.error('Error:', error);
         }

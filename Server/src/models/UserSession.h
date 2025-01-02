@@ -55,7 +55,7 @@ namespace model::auth {
             json["id"] = id;
             json["username"] = username;
             json["name"] = name;
-            json["session_id"] = session_id;
+            json["sessionId"] = session_id;
             return json;
         }
     };
