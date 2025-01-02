@@ -1,5 +1,4 @@
-```cpp
-#ifndef TESTCONTROLLER_H 
+#ifndef TESTCONTROLLER_H
 #define TESTCONTROLLER_H
 
 #include "fcp/core/context.h"
@@ -169,4 +168,3 @@ namespace controller::test {
 }
 
 #endif
-```
