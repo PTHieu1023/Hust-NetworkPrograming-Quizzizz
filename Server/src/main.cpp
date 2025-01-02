@@ -1,6 +1,8 @@
 #include "fcp/core/server.h"
 
 #include "handlers/AuthController.h"
+#include "handlers/QuestionController.h"
+#include "handlers/TestController.h"
 
 
 int main()
