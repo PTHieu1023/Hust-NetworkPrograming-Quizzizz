@@ -39,7 +39,7 @@ model::question::Question* model::question::Question::addAnswer(const QuestionAn
 
 nlohmann::json model::question::Question::toJson() const {
     nlohmann::json question;
-    question["id"] = this->id;
+    question["questionId"] = this->id;
     question["authorId"] = this->authorId;
     question["content"] = this->content;
 
