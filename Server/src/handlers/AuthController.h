@@ -46,7 +46,7 @@ namespace controller::auth{
     inline void logout(const fcp::Context *ctx) {
         nlohmann::json json;
         try {
-            service::auth::logout(ctx->getProps("session_id"));
+            service::auth::logout(ctx->getProps("sessionId"));
             json["message"] = "Logout success!";
         }catch (std::exception& e) {
             json["err"] = e.what();
