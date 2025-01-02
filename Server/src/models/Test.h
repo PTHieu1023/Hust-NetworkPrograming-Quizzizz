@@ -25,7 +25,7 @@ namespace model::quiz {
     public:
         int id;
         std::string name;
-        std::vector<std::string> questions;
+        std::vector<int> questions;
         int authorId;
 
         nlohmann::json toJson() const {
