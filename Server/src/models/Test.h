@@ -30,7 +30,7 @@ namespace model::quiz {
 
         nlohmann::json toJson() const {
             nlohmann::json json;
-            json["id"] = id;
+            json["quizId"] = id;
             json["name"] = name;
             json["authorId"] = authorId;
             json["questions"] = questions;
