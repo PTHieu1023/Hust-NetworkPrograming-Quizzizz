@@ -26,14 +26,13 @@ namespace model::test {
         int id;
         std::string name;
         std::vector<std::string> questions;
-        bool isPrivate;
         int authorId;
 
         nlohmann::json toJson() const {
             nlohmann::json json;
             json["name"] = name;
+            json["authorId"] = authorId;
             json["questions"] = questions;
-            json["isPrivate"] = isPrivate;
             return json;
         }
 
@@ -41,7 +40,6 @@ namespace model::test {
             nlohmann::json json;
             json["id"] = id;
             json["name"] = name;
-            json["isPrivate"] = isPrivate;
             return json;
         }
     };

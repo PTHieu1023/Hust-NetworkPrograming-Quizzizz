@@ -58,42 +58,37 @@ namespace service::test {
    };
 
    // CRUD Services
-   std::unique_ptr<model::test::Test> createTest(const std::string& sessionId, 
+   std::unique_ptr<model::test::Test> createTest(int userId,
                                                const std::string& name,
-                                               const std::vector<std::string>& questions, 
-                                               bool isPrivate) {
-       auto conn = fcp::DB::getInstance()->getConnection();
-       pqxx::work txn(*conn);
+                                               const std::vector<int>& questions) {
        try {
-           int authorId = Validator::validateSession(txn, sessionId);
-
+           pqxx::work txn(*fcp::DB::getInstance()->getConnection());
            const pqxx::result result = txn.exec_params(
-               "INSERT INTO tests (name, author_id, is_private) VALUES ($1, $2, $3) RETURNING id",
-               name, authorId, isPrivate
+               "INSERT INTO quiz (title, created_by) VALUES ($1, $2) RETURNING quiz_id;",
+               name, userId
            );
 
-           int testId = result[0]["id"].as<int>();
-
+           int quizId = result[0]["quiz_id"].as<int>();
            for (const auto& questionId : questions) {
-               txn.exec_params(
-                   "INSERT INTO test_questions (test_id, question_id) VALUES ($1, $2)",
-                   testId, questionId
+               auto quiz_question = txn.exec_params(
+                   "INSERT INTO quizquestion (quiz_id, question_id) VALUES ($1, $2)",
+                   quizId, questionId
                );
+               if (quiz_question.affected_rows() == 0)
+                   throw std::runtime_error("Failed to insert question");
            }
 
            txn.commit();
 
            auto test = std::make_unique<model::test::Test>();
-           test->id = testId;
+           test->id = quizId;
            test->name = name;
-           test->questions = questions;
-           test->isPrivate = isPrivate;
-           test->authorId = authorId;
-
+           test->authorId = userId;
            return test;
-       } catch (...) {
-           txn.abort();
-           throw;
+       } catch (const pqxx::sql_error &e){
+           throw std::runtime_error("Database error: " + std::string(e.what()));
+       }catch (const std::exception &e){
+           throw std::runtime_error("Unexpected error: " + std::string(e.what()));
        }
    }
 
@@ -128,7 +123,6 @@ namespace service::test {
                model::test::Test test;
                test.id = row["id"].as<int>();
                test.name = row["name"].as<std::string>();
-               test.isPrivate = row["is_private"].as<bool>();
                test.authorId = row["author_id"].as<int>();
 
                if (!row["questions"].is_null()) {

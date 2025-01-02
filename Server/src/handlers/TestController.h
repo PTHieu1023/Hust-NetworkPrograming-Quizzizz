@@ -8,26 +8,16 @@ namespace controller::test {
     inline void createTest(const fcp::Context* ctx) {
         try {
             const std::string sessionId = ctx->getProps("sessionId");
-            const std::string name = ctx->getProps("name");
-            const auto questions = ctx->getProps("questions").get<std::vector<std::string>>();
-            const bool isPrivate = ctx->getProps("isPrivate");
+            const std::string title = ctx->getProps("title");
+            const std::vector<int> questions = ctx->getProps("questions");
 
-            const auto test = service::test::createTest(sessionId, name, questions, isPrivate);
-            
-            // Handle 0x0004 success response
-            nlohmann::json response;
-            response["name"] = name;
-            response["questions"] = questions;
-            response["isPrivate"] = isPrivate;
-            response["status"] = "Success";
-            ctx->writeClient(response.dump());
-
+            const int userId = service::auth::verifySession(sessionId);
+            const auto quiz = service::test::createTest(userId, title, questions);
+            ctx->writeClient(quiz->toJson().dump().c_str());
         } catch (std::exception& e) {
-            // Handle 0x0005 fail response 
             nlohmann::json response;
-            response["status"] = "Fail";
-            response["message"] = e.what();
-            ctx->writeClient(response.dump());
+            response["err"] =  e.what();
+            ctx->writeClient(response.dump().c_str());
         }
     }
 
