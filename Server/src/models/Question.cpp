@@ -43,12 +43,14 @@ nlohmann::json model::question::Question::toJson() const {
     question["authorId"] = this->authorId;
     question["content"] = this->content;
 
-    // Convert each answer to JSON and add to array
-    nlohmann::json answersJson = nlohmann::json::array();
-    for (const auto& answer : this->answers) {
-        answersJson.push_back(answer->toJson());
+    if (answers.size() > 0) {
+        // Convert each answer to JSON and add to array
+        nlohmann::json answersJson = nlohmann::json::array();
+        for (const auto& answer : this->answers) {
+            answersJson.push_back(answer->toJson());
+        }
+        question["answers"] = answersJson;
     }
-    question["answers"] = answersJson;
 
     return question;
 }
@@ -71,6 +73,10 @@ nlohmann::json model::question::QuestionAnswer::toJson() const {
     return answer;
 }
 
+int model::question::QuestionAnswer::getId() const {
+    return id;
+}
+
 int model::question::QuestionAnswer::getQuestionId() const {
     return questionId;
 }
@@ -81,6 +87,11 @@ int model::question::QuestionAnswer::getIsTrue() const {
 
 std::string model::question::QuestionAnswer::getContent() const {
     return content;
+}
+
+model::question::QuestionAnswer * model::question::QuestionAnswer::setId(int id) {
+    this->id = id;
+    return this;
 }
 
 model::question::QuestionAnswer * model::question::QuestionAnswer::setQuestionId(int questionId) {

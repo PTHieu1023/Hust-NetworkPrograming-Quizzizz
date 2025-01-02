@@ -46,15 +46,18 @@ namespace model::question
 
         nlohmann::json toJson() const;
 
+        int getId() const;
         int getQuestionId() const;
         int getIsTrue() const;
         std::string getContent() const;
 
+        QuestionAnswer *setId(int id);
         QuestionAnswer *setQuestionId(int questionId);
         QuestionAnswer *setIsTrue(int isTrue);
         QuestionAnswer *setContent(const std::string &content);
 
     private:
+        int id;
         int questionId;
         bool isTrue;
         std::string content;
