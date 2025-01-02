@@ -4,10 +4,11 @@
 #include "handlers/QuestionController.h"
 #include "handlers/TestController.h"
 
-
 int main()
 {
     fcp::Server server(PORT);
+
+    // Auth API
     server.use(0x0000, controller::auth::login);
     server.use(0x0001, controller::auth::signUp);
     server.use(0x0002, controller::auth::logout);
