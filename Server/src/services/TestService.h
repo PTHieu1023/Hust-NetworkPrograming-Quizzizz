@@ -22,7 +22,7 @@ namespace service::test {
            ss >> std::get_time(&tm, "%Y-%m-%dT%H:%M:%S");
            return !ss.fail();
        }
-       
+
        static void validateDateTime(const std::string& createdAt, const std::string& closedAt) {
            if (!isValidDateTime(createdAt) || !isValidDateTime(closedAt)) {
                throw std::runtime_error("Invalid datetime format. Use: YYYY-MM-DDThh:mm:ss");
@@ -41,14 +41,6 @@ namespace service::test {
            }
        }
 
-       static int validateSession(pqxx::work& txn, const std::string& sessionId) {
-           const pqxx::result session = txn.exec_params(
-               "SELECT user_id FROM session WHERE session_id = $1", sessionId
-           );
-           if (session.empty()) throw std::runtime_error("Invalid session");
-           return session[0]["user_id"].as<int>();
-       }
-
        static void validateTest(pqxx::work& txn, int testId) {
            const pqxx::result test = txn.exec_params(
                "SELECT id FROM tests WHERE id = $1", testId
@@ -58,7 +50,7 @@ namespace service::test {
    };
 
    // CRUD Services
-   std::unique_ptr<model::test::Test> createTest(int userId,
+   std::unique_ptr<model::quiz::Quiz> createTest(int userId,
                                                const std::string& name,
                                                const std::vector<int>& questions) {
        try {
@@ -80,7 +72,7 @@ namespace service::test {
 
            txn.commit();
 
-           auto test = std::make_unique<model::test::Test>();
+           auto test = std::make_unique<model::quiz::Quiz>();
            test->id = quizId;
            test->name = name;
            test->authorId = userId;
@@ -92,60 +84,30 @@ namespace service::test {
        }
    }
 
-   std::vector<model::test::Test> getTests(const std::string& sessionId, int authorId,
-                                         const std::string& name, int count, int page) {
-       auto conn = fcp::DB::getInstance()->getConnection();
-       pqxx::work txn(*conn);
+   std::vector<std::shared_ptr<model::quiz::Quiz>> getQuizzes(int userId, int page) {
        try {
-           Validator::validateSession(txn, sessionId);
-
-           std::string query = 
-               "SELECT t.id, t.name, t.is_private, t.author_id, array_agg(tq.question_id) as questions "
-               "FROM tests t "
-               "LEFT JOIN test_questions tq ON t.id = tq.test_id "
-               "WHERE 1=1 ";
-
-           if (authorId > 0) {
-               query += "AND t.author_id = " + std::to_string(authorId) + " ";
-           }
-           if (!name.empty()) {
-               query += "AND t.name ILIKE '%" + name + "%' ";
-           }
-
-           query += "GROUP BY t.id ORDER BY t.created_at DESC "
-                   "LIMIT " + std::to_string(count) + " "
-                   "OFFSET " + std::to_string((page - 1) * count);
-
-           const pqxx::result result = txn.exec(query);
-           std::vector<model::test::Test> tests;
+           pqxx::work txn(*fcp::DB::getInstance()->getConnection());
+           const pqxx::result result = txn.exec_params("SELECT * FROM quiz t WHERE created_by = $1 OFFSET $2 LIMIT 6",
+               userId,
+               --page * 6);
+           std::vector<std::shared_ptr<model::quiz::Quiz>> quizzes;
 
            for (const auto& row : result) {
-               model::test::Test test;
-               test.id = row["id"].as<int>();
-               test.name = row["name"].as<std::string>();
-               test.authorId = row["author_id"].as<int>();
-
-               if (!row["questions"].is_null()) {
-                   std::string questionsStr = row["questions"].as<std::string>();
-                   questionsStr = questionsStr.substr(1, questionsStr.length() - 2);
-                   std::stringstream ss(questionsStr);
-                   std::string item;
-                   while (std::getline(ss, item, ',')) {
-                       test.questions.push_back(item);
-                   }
-               }
-               tests.push_back(test);
+              auto quiz = std::make_shared<model::quiz::Quiz>();
+               quiz->id = row["quiz_id"].as<int>();
+               quiz->name = row["title"].as<std::string>();
+               quiz->authorId = userId;
+               quizzes.push_back(quiz);
            }
-
-           txn.commit();
-           return tests;
-       } catch (...) {
-           txn.abort();
-           throw;
+           return quizzes;
+       } catch (const pqxx::sql_error &e){
+           throw std::runtime_error("Database error: " + std::string(e.what()));
+       }catch (const std::exception &e){
+           throw std::runtime_error("Unexpected error: " + std::string(e.what()));
        }
    }
 
-   std::unique_ptr<model::test::Room> createRoom(const std::string& sessionId, 
+   std::unique_ptr<model::quiz::Room> createRoom(const std::string& sessionId,
                                                const std::string& name,
                                                const std::string& code, 
                                                int testId, 
@@ -182,7 +144,7 @@ namespace service::test {
 
            txn.commit();
 
-           auto room = std::make_unique<model::test::Room>();
+           auto room = std::make_unique<model::quiz::Room>();
            room->id = result[0]["id"].as<int>();
            room->name = name;
            room->code = code;
@@ -201,12 +163,12 @@ namespace service::test {
        }
    }
 
-   std::vector<model::test::Room> getRooms(const std::string& sessionId, int hostId,
+   std::vector<model::quiz::Room> getRooms(const std::string& sessionId, int hostId,
                                          const std::string& name, int count, int page) {
        auto conn = fcp::DB::getInstance()->getConnection();
        pqxx::work txn(*conn);
        try {
-           Validator::validateSession(txn, sessionId);
+           // Validator::validateSession(txn, sessionId);
 
            std::string query = 
                "SELECT r.id, r.name, r.code, r.test_id, "
@@ -228,10 +190,10 @@ namespace service::test {
                    "OFFSET " + std::to_string((page - 1) * count);
 
            const pqxx::result result = txn.exec(query);
-           std::vector<model::test::Room> rooms;
+           std::vector<model::quiz::Room> rooms;
 
            for (const auto& row : result) {
-               model::test::Room room;
+               model::quiz::Room room;
                room.id = row["id"].as<int>();
                room.name = row["name"].as<std::string>();
                room.code = row["code"].as<std::string>();
@@ -276,7 +238,7 @@ namespace service::test {
        }
    }
 
-   std::unique_ptr<model::test::Room> updateRoom(const std::string& sessionId, 
+   std::unique_ptr<model::quiz::Room> updateRoom(const std::string& sessionId,
                                                int roomId,
                                                const std::string& name, 
                                                const std::string& code,
@@ -317,7 +279,7 @@ namespace service::test {
 
            txn.commit();
 
-           auto room = std::make_unique<model::test::Room>();
+           auto room = std::make_unique<model::quiz::Room>();
            room->id = roomId;
            room->name = name;
            room->code = code;
@@ -336,12 +298,12 @@ namespace service::test {
        }
    }
 
-   std::unique_ptr<model::test::Room> joinRoom(const std::string& sessionId, 
+   std::unique_ptr<model::quiz::Room> joinRoom(const std::string& sessionId,
                                              const std::string& code) {
        auto conn = fcp::DB::getInstance()->getConnection();
        pqxx::work txn(*conn);
        try {
-           int userId = Validator::validateSession(txn, sessionId);
+           int userId = auth::verifySession(sessionId);
 
            const pqxx::result room_query = txn.exec_params(
                "SELECT r.id, r.name, r.code, r.test_id, "
@@ -376,7 +338,7 @@ namespace service::test {
 
            txn.commit();
 
-           auto room = std::make_unique<model::test::Room>();
+           auto room = std::make_unique<model::quiz::Room>();
            room->id = room_query[0]["id"].as<int>();
            room->name = room_query[0]["name"].as<std::string>();
            room->code = room_query[0]["code"].as<std::string>();
@@ -395,7 +357,7 @@ namespace service::test {
            throw;
        }
    }
-   std::vector<model::test::RoomResult> getRoomResult(const std::string& sessionId, int roomId) {
+   std::vector<model::quiz::RoomResult> getRoomResult(const std::string& sessionId, int roomId) {
         auto conn = fcp::DB::getInstance()->getConnection();
         pqxx::work txn(*conn);
         try {
@@ -422,9 +384,9 @@ namespace service::test {
                 roomId
             );
 
-            std::vector<model::test::RoomResult> results;
+            std::vector<model::quiz::RoomResult> results;
             for (const auto& row : result) {
-                model::test::RoomResult res;
+                model::quiz::RoomResult res;
                 res.username = row["username"].as<std::string>();
                 res.name = row["name"].as<std::string>();
                 res.result = row["result"].is_null() ? 0.0 : row["result"].as<double>();
@@ -439,12 +401,11 @@ namespace service::test {
         }
     }
 
-    std::vector<model::test::HistoryResult> getHistoryResult(const std::string& sessionId) {
+    std::vector<model::quiz::HistoryResult> getHistoryResult(const std::string& sessionId) {
         auto conn = fcp::DB::getInstance()->getConnection();
         pqxx::work txn(*conn);
         try {
-            int userId = Validator::validateSession(txn, sessionId);
-
+            int userId = auth::verifySession(sessionId);
             const pqxx::result result = txn.exec_params(
                 "SELECT r.id as room_id, r.name as room_name, "
                 "rp.result, rp.completed_at "
@@ -455,9 +416,9 @@ namespace service::test {
                 userId
             );
 
-            std::vector<model::test::HistoryResult> history;
+            std::vector<model::quiz::HistoryResult> history;
             for (const auto& row : result) {
-                model::test::HistoryResult res;
+                model::quiz::HistoryResult res;
                 res.roomId = row["room_id"].as<int>();
                 res.roomName = row["room_name"].as<std::string>();
                 res.result = row["result"].is_null() ? 0.0 : row["result"].as<double>();

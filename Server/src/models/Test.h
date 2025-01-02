@@ -5,7 +5,7 @@
 #include <vector>
 #include <nlohmann/json.hpp>
 
-namespace model::test {
+namespace model::quiz {
     struct Response {
         static nlohmann::json success(const nlohmann::json& data) {
             nlohmann::json response = data;
@@ -21,7 +21,7 @@ namespace model::test {
         }
     };
 
-    class Test {
+    class Quiz {
     public:
         int id;
         std::string name;
