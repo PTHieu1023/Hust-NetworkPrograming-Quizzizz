@@ -7,11 +7,11 @@ Context::Context(int client_socket, const std::string& json_string) {
     this->props = nlohmann::json::parse(json_string);
 }
 
-std::string Context::getProps(const std::string &key) const{
+nlohmann::json Context::getProps(const std::string &key) const{
     if (props.find(key) == props.end()) {
         return nullptr;
     }
-    return props[key];
+    return  props.at(key);
 }
 
 void Context::writeClient(const std::string &buffer) const {

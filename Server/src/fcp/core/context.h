@@ -15,7 +15,7 @@ namespace fcp {
     public:
         Context(int client_socket, const std::string& json_string);
         ~Context() = default;
-        std::string getProps(const std::string &key) const;
+        nlohmann::json getProps(const std::string &key) const;
         void writeClient(const std::string &buffer) const;
     };
 }// namespace fcp::core
