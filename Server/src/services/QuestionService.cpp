@@ -195,3 +195,55 @@ nlohmann::json service::question::getRoomQuestion(int userId, int roomId, int pa
         throw std::runtime_error("Unexpected error: " + std::string(e.what()));
     }
 }
+
+void service::question::answerQuestion(int userId, int roomId, int answerId) {
+        try{
+            pqxx::work txn(*fcp::DB::getInstance()->getConnection());
+            pqxx::result result = txn.exec_params(
+                "SELECT room_participant_id from room_participant where room_id = $1 and participant_id = $2",
+                roomId, userId
+                );
+            if (result.empty()) {
+                result =txn.exec_params(
+                    "INSERT INTO room_participant(room_id,participant_id) VALUES ($1, $2) RETURNING room_participant_id;",
+                    roomId, userId);
+            }
+
+            if (result.empty()) {
+                throw std::runtime_error("Failed to answer question.");
+            }
+            int participantId = result[0]["room_participant_id"].as<int>();
+
+            result = txn.exec_params(
+            "select qa.question_id from room r "
+                "left join quizquestion qq ON qq.quiz_id = r.quiz_id "
+                "left join question_answer qa on qa.question_id = qq.question_id "
+                "where r.room_id = $1 and qa.id =$2",
+                roomId, answerId);
+            if (result.empty()) {
+                throw std::runtime_error("Failed to answer question.");
+            }
+            int questionId = result[0]["question_id"].as<int>();
+            // Create new question
+            result = txn.exec_params(
+                "UPDATE  participant_answer set answer_id = $1 WHERE room_participant_id = $2 AND question_quiz_id = $3;",
+                answerId, participantId, questionId);
+
+            if (result.affected_rows() > 0) {
+                txn.commit();
+                return;
+            }
+            result = txn.exec_params(
+            "INSERT INTO  participant_answer(room_participant_id, question_quiz_id, answer_id) values ($1, $2, $3);",
+                            participantId, questionId, answerId);
+            txn.commit();
+        }
+        catch (const pqxx::sql_error &e)
+        {
+            throw std::runtime_error("Database error: " + std::string(e.what()));
+        }
+        catch (const std::exception &e)
+        {
+            throw std::runtime_error("Unexpected error: " + std::string(e.what()));
+        }
+}

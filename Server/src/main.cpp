@@ -32,6 +32,8 @@ int main()
     server.use(0x0011, controller::quiz::getRoomResult);
     server.use(0x0012, controller::quiz::getHistoryResult);
 
+    server.use(0x0013, controller::question::answerQuestion);
+
     // Run TCP server
     server.start();
     return 0;

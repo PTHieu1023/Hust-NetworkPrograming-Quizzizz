@@ -104,3 +104,19 @@ void controller::question::getQuizQuestion(const fcp::Context *ctx) {
     printf("Response: %s\n", res.c_str());
     ctx->writeClient(res);
 }
+
+void controller::question::answerQuestion(const fcp::Context *ctx) {
+    nlohmann::json response;
+    try {
+        const int userId = service::auth::verifySession(ctx->getProps("sessionId"));
+        const int roomId = ctx->getProps("roomId");
+        const int answerId = ctx->getProps("answerId");
+        service::question::answerQuestion(userId, roomId, answerId);
+        response["message"] = "Question answered";
+    }catch (std::exception& e) {
+        response["err"] = e.what();
+    }
+    const std::string res = response.dump().c_str();
+    printf("Response: %s\n", res.c_str());
+    ctx->writeClient(res);
+}

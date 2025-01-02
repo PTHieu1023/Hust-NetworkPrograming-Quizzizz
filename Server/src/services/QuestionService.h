@@ -11,6 +11,7 @@ namespace service::question
     model::question::QuestionPtr updateQuestion(const model::question::QuestionPtr &question);
     void deleteQuestion(int questionId);
     nlohmann::json getRoomQuestion(int userId, int roomId, int page);
+    void answerQuestion(int userId, int roomId, int answerId );
 }
 
 #endif // QUESTIONSERVICE_H

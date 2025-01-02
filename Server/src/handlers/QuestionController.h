@@ -13,6 +13,7 @@ namespace controller::question
     void deleteQuestion(const fcp::Context *ctx);
     void getOneQuestion(const fcp::Context *ctx);
     void getQuizQuestion(const fcp::Context *ctx);
+    void answerQuestion(const fcp::Context *ctx);
 }
 
 #endif // QUESTIONCONTROLLER_H
