@@ -4,8 +4,8 @@
 #include "fcp/core/context.h"
 #include "services/TestService.h"
 
-namespace controller::test {
-    inline void createTest(const fcp::Context* ctx) {
+namespace controller::quiz {
+    inline void createQuiz(const fcp::Context* ctx) {
         try {
             const std::string sessionId = ctx->getProps("sessionId");
             const std::string title = ctx->getProps("title");
@@ -21,7 +21,7 @@ namespace controller::test {
         }
     }
 
-    inline void getTests(const fcp::Context* ctx) {
+    inline void getQuizzes(const fcp::Context* ctx) {
         try {
             const std::string sessionId = ctx->getProps("sessionId");
             const int authorId = ctx->getProps("authorId");

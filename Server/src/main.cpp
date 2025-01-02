@@ -20,20 +20,17 @@ int main()
     server.use(0x000F, controller::question::deleteQuestion);
     server.use(0x0010, controller::question::getOneQuestion);
 
+    server.use(0x0004, controller::quiz::createQuiz);
+    server.use(0x0006, controller::quiz::getQuizzes);
+    server.use(0x0007, controller::quiz::createRoom);
+    server.use(0x0008, controller::quiz::getRooms);
+    server.use(0x0009, controller::quiz::deleteRoom);
+    server.use(0x000A, controller::quiz::updateRoom);
+    server.use(0x000B, controller::quiz::joinRoom);
+    server.use(0x0011, controller::quiz::getRoomResult);
+    server.use(0x0012, controller::quiz::getHistoryResult);
+
     // Run TCP server
-
-    // Test & Room handlers
-    server.use(0x0004, controller::test::createTest); // createTest success
-    server.use(0x0005, controller::test::createTest); // createTest fail
-    server.use(0x0006, controller::test::getTests);
-    server.use(0x0007, controller::test::createRoom);
-    server.use(0x0008, controller::test::getRooms);
-    server.use(0x0009, controller::test::deleteRoom);
-    server.use(0x000A, controller::test::updateRoom);
-    server.use(0x000B, controller::test::joinRoom);
-    server.use(0x0011, controller::test::getRoomResult);
-    server.use(0x0012, controller::test::getHistoryResult);
-
     server.start();
     return 0;
 }
