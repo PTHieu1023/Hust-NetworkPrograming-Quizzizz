@@ -15,6 +15,8 @@ namespace service::auth {
     void signUp(const std::string &username, const std::string &password, const std::string &name);
     void logout(std::string session_id);
     void updatePassword(const std::string& sessionId, const std::string& oldPassword, const std::string& newPassword);
+    int verifySession(const std::string& sessionId);
+
 
     inline std::unique_ptr<model::auth::UserSession> login(const std::string& username, const std::string& password) {
         try {
@@ -109,6 +111,23 @@ namespace service::auth {
         }
     }
 
+    inline int verifySession(const std::string &sessionId) {
+        try {
+            pqxx::work txn(*fcp::DB::getInstance()->getConnection());
+
+            // Step 1: Validate session and old password
+            const pqxx::result query_set = txn.exec_params(
+                "SELECT user_id FROM session WHERE session_id = $1", sessionId);
+            if (query_set.empty()) {
+                throw std::runtime_error("Unauthorized session");
+            }
+            return  query_set[0]["user_id"].as<int>();
+        }catch (const pqxx::sql_error &e) {
+            throw std::runtime_error("Database error: " + std::string(e.what()));
+        } catch (const std::exception &e) {
+            throw std::runtime_error("Unexpected error: " + std::string(e.what()));
+        }
+    }
 
     inline void signUp(const std::string &username, const std::string &password, const std::string &name) {
         try {
