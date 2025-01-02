@@ -77,6 +77,37 @@ namespace model::test {
             return json;
         }
     };
+    class RoomResult {
+    public:
+        std::string username;
+        std::string name;
+        double result;
+
+        nlohmann::json toJson() const {
+            nlohmann::json json;
+            json["username"] = username;
+            json["name"] = name;
+            json["result"] = result;
+            return json;
+        }
+    };
+
+    class HistoryResult {
+    public:
+        int roomId; 
+        std::string roomName;
+        double result;
+        std::string completedAt;
+
+        nlohmann::json toJson() const {
+            nlohmann::json json;
+            json["roomId"] = roomId;
+            json["roomName"] = roomName;
+            json["result"] = result;
+            json["completedAt"] = completedAt;
+            return json;
+        }
+    };
 }
 
 #endif

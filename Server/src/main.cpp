@@ -20,6 +20,8 @@ int main() {
     server.use(0x0009, controller::test::deleteRoom);
     server.use(0x000A, controller::test::updateRoom);
     server.use(0x000B, controller::test::joinRoom);
+    server.use(0x0011, controller::test::getRoomResult);
+    server.use(0x0012, controller::test::getHistoryResult);
     
     server.start();
     return 0;

@@ -401,6 +401,83 @@ namespace service::test {
            throw;
        }
    }
+   std::vector<model::test::RoomResult> getRoomResult(const std::string& sessionId, int roomId) {
+        auto conn = fcp::DB::getInstance()->getConnection();
+        pqxx::work txn(*conn);
+        try {
+            // Validate session and room access
+            const pqxx::result auth_query = txn.exec_params(
+                "SELECT r.id FROM rooms r "
+                "JOIN room_participants rp ON r.id = rp.room_id "
+                "JOIN session s ON rp.user_id = s.user_id "
+                "WHERE s.session_id = $1 AND r.id = $2",
+                sessionId, roomId
+            );
+
+            if (auth_query.empty()) {
+                throw std::runtime_error("Unauthorized to view room results");
+            }
+
+            // Get results for all participants
+            const pqxx::result result = txn.exec_params(
+                "SELECT u.username, u.name, rp.result "
+                "FROM room_participants rp "
+                "JOIN users u ON rp.user_id = u.user_id "
+                "WHERE rp.room_id = $1 "
+                "ORDER BY rp.result DESC",
+                roomId
+            );
+
+            std::vector<model::test::RoomResult> results;
+            for (const auto& row : result) {
+                model::test::RoomResult res;
+                res.username = row["username"].as<std::string>();
+                res.name = row["name"].as<std::string>();
+                res.result = row["result"].is_null() ? 0.0 : row["result"].as<double>();
+                results.push_back(res);
+            }
+
+            txn.commit();
+            return results;
+        } catch (...) {
+            txn.abort();
+            throw;
+        }
+    }
+
+    std::vector<model::test::HistoryResult> getHistoryResult(const std::string& sessionId) {
+        auto conn = fcp::DB::getInstance()->getConnection();
+        pqxx::work txn(*conn);
+        try {
+            int userId = Validator::validateSession(txn, sessionId);
+
+            const pqxx::result result = txn.exec_params(
+                "SELECT r.id as room_id, r.name as room_name, "
+                "rp.result, rp.completed_at "
+                "FROM room_participants rp "
+                "JOIN rooms r ON rp.room_id = r.id "
+                "WHERE rp.user_id = $1 AND rp.completed_at IS NOT NULL "
+                "ORDER BY rp.completed_at DESC",
+                userId
+            );
+
+            std::vector<model::test::HistoryResult> history;
+            for (const auto& row : result) {
+                model::test::HistoryResult res;
+                res.roomId = row["room_id"].as<int>();
+                res.roomName = row["room_name"].as<std::string>();
+                res.result = row["result"].is_null() ? 0.0 : row["result"].as<double>();
+                res.completedAt = row["completed_at"].as<std::string>();
+                history.push_back(res);
+            }
+
+            txn.commit();
+            return history;
+        } catch (...) {
+            txn.abort();
+            throw;
+        }
+    }
 }
 
 #endif
