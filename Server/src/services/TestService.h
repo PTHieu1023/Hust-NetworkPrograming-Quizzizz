@@ -67,6 +67,7 @@ namespace service::quiz {
            test->id = quizId;
            test->name = name;
            test->authorId = userId;
+           test->questions = questions;
            return test;
        } catch (const pqxx::sql_error &e){
            throw std::runtime_error("Database error: " + std::string(e.what()));
