@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { ROUTES } from '~/resources/routes-constants'
+import { joinQuiz } from '~/store/actions/quiz'
 import { clearError } from '~/store/reducers/quiz'
 import { useAppDispatch, useAppSelector } from '~/store/reducers/store'
 import { notify } from '~/utility/functions'
 
 const ProceedGame: React.FC = () => {
     const dispatch = useAppDispatch()
+    const navigate = useNavigate()
     const { loading, error } = useAppSelector((state) => state.quiz)
 
     const [code, setCode] = useState('')
@@ -14,6 +16,10 @@ const ProceedGame: React.FC = () => {
         if (!code) {
             notify('Please enter a code', 'error')
             return
+        }
+        await dispatch(joinQuiz(code))
+        if (!error) {
+            navigate(`${ROUTES.QUIZ_ROUTE}/pre-game/${code}`)
         }
     }
 
@@ -50,6 +56,9 @@ const ProceedGame: React.FC = () => {
             >
                 Make your own quiz
             </Link>
+            {/* <button className="btn" onClick={() => dispatch(clearError())}>
+                Clear
+            </button> */}
         </div>
     )
 }

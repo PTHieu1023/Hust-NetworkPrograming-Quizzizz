@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { QuizState } from '~/types/reducers'
-import { joinQuiz } from '../actions/quiz'
+import { getQuizQuestions, joinQuiz } from '../actions/quiz'
+import { calculateTimeRemaining } from '~/utility/functions'
 
 const initialState: QuizState = {
     room: null,
@@ -24,6 +25,7 @@ const quizSlice = createSlice({
     extraReducers: (builder) => {
         // Add extraReducers here
         builder
+            // Join Quiz
             .addCase(joinQuiz.pending, (state) => {
                 state.loading = true
             })
@@ -32,6 +34,22 @@ const quizSlice = createSlice({
                 state.room = action.payload
             })
             .addCase(joinQuiz.rejected, (state, action) => {
+                state.loading = false
+                state.error = action.payload as string
+            })
+            // Get Quiz Questions
+            .addCase(getQuizQuestions.pending, (state) => {
+                state.loading = true
+            })
+            .addCase(getQuizQuestions.fulfilled, (state, action) => {
+                state.loading = false
+                state.questions = action.payload
+                state.isStarted = true
+                state.timeRemaining = calculateTimeRemaining(
+                    state.room?.closedAt as string
+                )
+            })
+            .addCase(getQuizQuestions.rejected, (state, action) => {
                 state.loading = false
                 state.error = action.payload as string
             })

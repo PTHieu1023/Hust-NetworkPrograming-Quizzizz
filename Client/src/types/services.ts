@@ -23,10 +23,15 @@ export type quizRoom = {
     host?: Omit<user, 'username'>
     name: string
     code?: string
-    quizId: string
+    quizId: number
     isPractice?: boolean
     isPrivate?: boolean
     openedAt?: string
     closedAt?: string
     players?: number[]
+}
+
+export type Activity = quizRoom & {
+    result: number
+    completedAt: string
 }

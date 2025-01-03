@@ -14,3 +14,25 @@ export const joinQuiz = createAsyncThunk(
         }
     }
 )
+
+interface getQuizQuestionsInput {
+    roomId: number
+    page: number
+}
+
+export const getQuizQuestions = createAsyncThunk(
+    'quiz/getQuizQuestions',
+    async (data: getQuizQuestionsInput, thunkAPI) => {
+        try {
+            const response = await roomService.getRoomQuestions(
+                data.roomId,
+                data.page
+            )
+            return response
+        } catch (error: any) {
+            return thunkAPI.rejectWithValue(
+                error?.err || 'Failed to get questions'
+            )
+        }
+    }
+)

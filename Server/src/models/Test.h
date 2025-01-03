@@ -5,15 +5,19 @@
 #include <vector>
 #include <nlohmann/json.hpp>
 
-namespace model::quiz {
-    struct Response {
-        static nlohmann::json success(const nlohmann::json& data) {
+namespace model::quiz
+{
+    struct Response
+    {
+        static nlohmann::json success(const nlohmann::json &data)
+        {
             nlohmann::json response = data;
             response["status"] = "Success";
             return response;
         }
 
-        static nlohmann::json fail(const std::string& message) {
+        static nlohmann::json fail(const std::string &message)
+        {
             nlohmann::json json;
             json["status"] = "Fail";
             json["message"] = message;
@@ -21,14 +25,16 @@ namespace model::quiz {
         }
     };
 
-    class Quiz {
+    class Quiz
+    {
     public:
         int id;
         std::string name;
         std::vector<int> questions;
         int authorId;
 
-        nlohmann::json toJson() const {
+        nlohmann::json toJson() const
+        {
             nlohmann::json json;
             json["quizId"] = id;
             json["name"] = name;
@@ -37,7 +43,8 @@ namespace model::quiz {
             return json;
         }
 
-        nlohmann::json toListJson() const {
+        nlohmann::json toListJson() const
+        {
             nlohmann::json json;
             json["id"] = id;
             json["name"] = name;
@@ -45,7 +52,8 @@ namespace model::quiz {
         }
     };
 
-    class Room {
+    class Room
+    {
     public:
         int id;
         std::string name;
@@ -57,29 +65,35 @@ namespace model::quiz {
         std::string hostName;
         int participantId;
 
-        nlohmann::json toJson() const {
+        nlohmann::json toJson() const
+        {
             nlohmann::json json;
+            json["roomId"] = id;
             json["hostId"] = hostId;
             json["name"] = name;
             json["code"] = code;
             json["testId"] = quizId;
-            json["createdAt"] = createdAt;
+            json["openedAt"] = createdAt;
             json["closedAt"] = closedAt;
-            if (!hostName.empty()) {
+            if (!hostName.empty())
+            {
                 json["hostName"] = hostName;
             }
-            if(participantId > 0) {
+            if (participantId > 0)
+            {
                 json["participantId"] = participantId;
             }
             return json;
         }
     };
-    class RoomResult {
+    class RoomResult
+    {
     public:
         std::string username;
         int result;
 
-        nlohmann::json toJson() const {
+        nlohmann::json toJson() const
+        {
             nlohmann::json json;
             json["username"] = username;
             json["result"] = result;
@@ -87,13 +101,15 @@ namespace model::quiz {
         }
     };
 
-    class HistoryResult {
+    class HistoryResult
+    {
     public:
-        int roomId; 
+        int roomId;
         std::string roomName;
         int result;
 
-        nlohmann::json toJson() const {
+        nlohmann::json toJson() const
+        {
             nlohmann::json json;
             json["roomId"] = roomId;
             json["roomName"] = roomName;

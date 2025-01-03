@@ -94,19 +94,19 @@ const ListQuestionsPage: React.FC = () => {
     }
 
     const handleLoadMoreQs = async () => {
-        await fetchQuestions(totalPages + 1)
+        if (currentPage === totalPages) await fetchQuestions(totalPages + 1)
         setCurrentPage((prev) => Math.min(prev + 1, totalPages))
     }
 
     return (
-        <div className="flex flex-col gap-4 max-w-6xl mx-auto p-6">
+        <div className="flex flex-col justify-between max-w-6xl mx-auto p-6 h-[calc(100vh-8rem)]">
             <Link
                 to={`${ROUTES.QUESTION_ROUTE}/create`}
                 className="btn btn-success w-fit"
             >
                 Create new question
             </Link>
-            <div className="overflow-x-auto shadow-md rounded-lg">
+            <div className="overflow-x-auto flex-1 py-6">
                 <table className="w-full min-w-96">
                     <thead className="bg-base-200 text-base-content">
                         <tr>
@@ -127,7 +127,7 @@ const ListQuestionsPage: React.FC = () => {
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     {question.questionId}
                                 </td>
-                                <td className="px-6 py-4 max-w-80 min-w-40">
+                                <td className="px-6 py-4 w-80">
                                     <div className="text-sm line-clamp-2 text-ellipsis">
                                         {question.content}
                                     </div>

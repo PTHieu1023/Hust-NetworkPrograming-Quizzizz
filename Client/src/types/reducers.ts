@@ -22,9 +22,20 @@ export interface ThemeState {
     mode: Theme
 }
 
+export interface quizQuestions {
+    questionId: number
+    roomId: number
+    content: string
+    answers: {
+        answerId: number
+        content: string
+        isTrue?: boolean
+    }[]
+}
+
 export interface QuizState {
     room: quizRoom | null
-    questions?: question[]
+    questions: quizQuestions[]
     isStarted: boolean
     timeRemaining: number | null
     loading: boolean

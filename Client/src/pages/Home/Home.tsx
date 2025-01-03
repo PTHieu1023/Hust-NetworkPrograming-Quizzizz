@@ -102,7 +102,7 @@ const Home: React.FC = () => {
                             {loading ? 'Loading...' : 'See More'}
                         </button>
                     </div>
-                    <div className="flex flex-wrap justify-around items-center">
+                    <div className="flex flex-wrap justify-start items-center">
                         {quizzes.map((quiz, index) => {
                             if (quiz.isPrivate) return null
                             return (

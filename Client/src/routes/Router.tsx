@@ -12,9 +12,11 @@ import ForbiddenPage from '~/pages/Error/ForbiddenPage'
 import NotFoundPage from '~/pages/Error/NotFoundPage'
 import HomePage from '~/pages/HomePage'
 import CreateQuizPage from '~/pages/Quiz/CreateQuizPage'
+import DoQuiz from '~/pages/Quiz/DoQuiz'
 import HostPage from '~/pages/Quiz/HostPage'
 import CreateQuestionPage from '~/pages/Quiz/Question/CreateQuestionPage'
 import ListQuestionsPage from '~/pages/Quiz/Question/ListQuestionsPage'
+import ReviewQuizPage from '~/pages/Quiz/ReviewQuizPage'
 import SetupPage from '~/pages/Quiz/SetupPage'
 import WaitingPage from '~/pages/Quiz/WaitingPage'
 import { ROUTES } from '~/resources/routes-constants'
@@ -89,6 +91,14 @@ const Routes = () => {
                 {
                     path: `${ROUTES.QUESTION_ROUTE}/all-questions`,
                     element: <ListQuestionsPage />
+                },
+                {
+                    path: `${ROUTES.QUIZ_ROUTE}/game/:code/play`,
+                    element: <DoQuiz />
+                },
+                {
+                    path: `${ROUTES.QUIZ_ROUTE}/result`,
+                    element: <ReviewQuizPage />
                 }
             ]
         },

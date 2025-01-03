@@ -13,7 +13,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ROUTES } from '~/resources/routes-constants'
 import roomService from '~/services/room'
 import { quizRoom } from '~/types/services'
-import { notify } from '~/utility/functions'
+import { formatToLocalDatetime, notify } from '~/utility/functions'
 
 const SetupPage: React.FC = () => {
     const { mode } = useParams()
@@ -44,7 +44,7 @@ const SetupPage: React.FC = () => {
         }
 
         data.isPractice = mode === 'practice'
-        console.log(data)
+        // console.log(data)
 
         setLoading(true)
         try {
@@ -71,8 +71,8 @@ const SetupPage: React.FC = () => {
                 openedDate.getTime() + timerMinutes * 60000
             )
 
-            // Format to YYYY-MM-DDTHH:mm:ss
-            const formattedClosedAt = closedAt.toISOString().slice(0, 19)
+            // Format to local time
+            const formattedClosedAt = formatToLocalDatetime(closedAt)
 
             register('closedAt', { value: formattedClosedAt })
         }
@@ -193,7 +193,7 @@ const SetupPage: React.FC = () => {
                                     <div className="w-full">
                                         <input
                                             type="range"
-                                            min={0}
+                                            min={15}
                                             defaultValue={15}
                                             max="60"
                                             className="range range-secondary"
@@ -203,7 +203,7 @@ const SetupPage: React.FC = () => {
                                             }
                                         />
                                         <div className="flex w-full justify-between px-4 text-xs">
-                                            {['0', '15', '30', '45', '60'].map(
+                                            {['15', '30', '45', '60'].map(
                                                 (value) => (
                                                     <div
                                                         key={value}
