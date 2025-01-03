@@ -59,6 +59,7 @@ namespace model::quiz {
 
         nlohmann::json toJson() const {
             nlohmann::json json;
+            json["roomId"] = id;
             json["hostId"] = hostId;
             json["name"] = name;
             json["code"] = code;
