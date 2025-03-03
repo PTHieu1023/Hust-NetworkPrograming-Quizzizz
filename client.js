@@ -97,10 +97,13 @@ async function main() {
             console.log('Server Response:', JSON.stringify(response));
         },
         'test': async () => {
-            const response = await sendMessage('127.0.0.1', 8080, 15, {
+            payload = {
                 sessionId: '459d5476-f16e-45ac-9287-d821d297eb39',
-                questionId: 2
-            })
+                title: "rtee",
+                questions: [4, 5, 6, 7, 8, 9]
+            }
+
+            const response = await sendMessage('127.0.0.1', 8080, 0x0004, payload);
             console.log(response);
         }
     }

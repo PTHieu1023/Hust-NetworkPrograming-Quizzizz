@@ -1,0 +1,32 @@
+[
+{
+  "directory": "/home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/build",
+  "command": "/usr/bin/g++  -I/home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/src -I/home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/external/json/include -I/usr/include/postgresql -g -o CMakeFiles/Server.dir/src/fcp/core/context.cpp.o -c /home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/src/fcp/core/context.cpp",
+  "file": "/home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/src/fcp/core/context.cpp"
+},
+{
+  "directory": "/home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/build",
+  "command": "/usr/bin/g++  -I/home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/src -I/home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/external/json/include -I/usr/include/postgresql -g -o CMakeFiles/Server.dir/src/fcp/core/database.cpp.o -c /home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/src/fcp/core/database.cpp",
+  "file": "/home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/src/fcp/core/database.cpp"
+},
+{
+  "directory": "/home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/build",
+  "command": "/usr/bin/g++  -I/home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/src -I/home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/external/json/include -I/usr/include/postgresql -g -o CMakeFiles/Server.dir/src/handlers/QuestionController.cpp.o -c /home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/src/handlers/QuestionController.cpp",
+  "file": "/home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/src/handlers/QuestionController.cpp"
+},
+{
+  "directory": "/home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/build",
+  "command": "/usr/bin/g++  -I/home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/src -I/home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/external/json/include -I/usr/include/postgresql -g -o CMakeFiles/Server.dir/src/main.cpp.o -c /home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/src/main.cpp",
+  "file": "/home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/src/main.cpp"
+},
+{
+  "directory": "/home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/build",
+  "command": "/usr/bin/g++  -I/home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/src -I/home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/external/json/include -I/usr/include/postgresql -g -o CMakeFiles/Server.dir/src/models/Question.cpp.o -c /home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/src/models/Question.cpp",
+  "file": "/home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/src/models/Question.cpp"
+},
+{
+  "directory": "/home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/build",
+  "command": "/usr/bin/g++  -I/home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/src -I/home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/external/json/include -I/usr/include/postgresql -g -o CMakeFiles/Server.dir/src/services/QuestionService.cpp.o -c /home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/src/services/QuestionService.cpp",
+  "file": "/home/azura/Workspace/Software/Hust-NetworkPrograming-Quizzizz/Server/src/services/QuestionService.cpp"
+}
+]
